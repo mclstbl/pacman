@@ -24,4 +24,4 @@ pacman: main.cpp
         $(CC) -o pacman.x main.cpp $(LDFLAGS)
 
 clean:
-        $(RM) *.x
+	$(RM) *.x
