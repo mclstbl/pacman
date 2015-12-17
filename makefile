@@ -6,22 +6,22 @@ RM=rm
 
 # Windows (cygwin)
 ifeq "$(OS)" "Windows_NT"
-        EXEEXT=.exe #on windows applications must have .exe extension
-        RM=del #rm command for windows powershell
-    LDFLAGS = -lfreeglut -lglu32 -lopengl32
+	EXEEXT=.exe #on windows applications must have .exe extension
+	RM=del #rm command for windows powershell
+	LDFLAGS = -lfreeglut -lglu32 -lopengl32
 else
-        # OS X
-        OS := $(shell uname)
-        EXEEXT=.x
-        ifeq ($(OS), Darwin)
-                LDFLAGS = -lstdc++ -framework Carbon -framework OpenGL -framework GLUT -Wno-deprecated-declarations
-        endif
+	# OS X
+	OS := $(shell uname)
+	EXEEXT=.x
+	ifeq ($(OS), Darwin)
+		LDFLAGS = -lstdc++ -framework Carbon -framework OpenGL -framework GLUT -Wno-deprecated-declarations
+	endif
 endif
 
 all: pacman
 
 pacman: main.cpp
-        $(CC) -o pacman.x main.cpp $(LDFLAGS)
+	$(CC) -o pacman.x main.cpp $(LDFLAGS)
 
 clean:
 	$(RM) *.x
