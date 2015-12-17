@@ -8,7 +8,7 @@ RM=rm
 ifeq "$(OS)" "Windows_NT"
         EXEEXT=.exe #on windows applications must have .exe extension
         RM=del #rm command for windows powershell
-    LDFLAGS = -lfreeglut -lglu32 -lopengl32 
+    LDFLAGS = -lfreeglut -lglu32 -lopengl32
 else
         # OS X
         OS := $(shell uname)
@@ -18,10 +18,10 @@ else
         endif
 endif
 
-all: snowman 
+all: pacman
 
-snowman: snowman.cpp
-	$(CC) -o snowman.x snowman.cpp $(LDFLAGS)
+pacman: main.cpp
+        $(CC) -o pacman.x main.cpp $(LDFLAGS)
 
 clean:
-	$(RM) *.x
+        $(RM) *.x
