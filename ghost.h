@@ -4,9 +4,15 @@
 
 class Ghost
 {
-	float position[3];
-	float direction[3];
+public:
+	Ghost(int);
+	float positionG[3];
+	float directionG[3];
 	float color[3];
+	int personality;
 
 	void drawGhost(void);
+	void init(int);
+	void move(void);
+
 };

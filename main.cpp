@@ -28,11 +28,12 @@ float camPos[] = {0, 0, 20};
 float angle = 0.0f;
 
 Pacman P1;
-Ghost chaser;
-Ghost ambusher;
-Ghost fickle;
-Ghost ignorance;
+Ghost chaser = Ghost(0);
+Ghost ambusher = Ghost(1);
+Ghost fickle = Ghost(2);
+Ghost ignorance = Ghost(3);
 Food food1;
+bool newFood = true;
 
 void drawPolygon(int a, int b, int c, int d, float v[8][3]){
 	glBegin(GL_POLYGON);
@@ -178,11 +179,17 @@ void init(void)
 	glLoadIdentity();
 	//glOrtho(-2, 2, -2, 2, -2, 2);
 	gluPerspective(45, 1, 1, 100);
+
+	glEnable(GL_DEPTH_TEST);
 }
 
 void idle(void)
 {
   P1.move();
+  //chaser.move();
+  //ambusher.move();
+  //fickle.move();
+  //ignorance.move();
 
   glutPostRedisplay();
 }
@@ -199,8 +206,22 @@ void display(void)
 
 	//drawBox(origin, 10, 10, 10);
   
-	P1.draw();
+  P1.drawPacman();
 	
+	chaser.drawGhost();
+  ambusher.drawGhost();
+	fickle.drawGhost();
+	ignorance.drawGhost();
+
+  if (newFood)
+  {
+  	food1.drawFood(true);
+  }
+  else
+  {
+  	food1.drawFood(false);
+  }
+
 	glutSwapBuffers();
 }
 
@@ -209,7 +230,6 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 	
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	
 	
 	glutInitWindowSize(600, 600);
 	glutInitWindowPosition(800, 0);
@@ -221,7 +241,6 @@ int main(int argc, char** argv)
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
 
-	glEnable(GL_DEPTH_TEST);
 	init();
 
 	glutMainLoop();

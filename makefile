@@ -14,14 +14,15 @@ else
 	OS := $(shell uname)
 	EXEEXT=.x
 	ifeq ($(OS), Darwin)
+	  CFLAGS =
 		LDFLAGS = -lstdc++ -framework Carbon -framework OpenGL -framework GLUT -Wno-deprecated-declarations
 	endif
 endif
 
 all: pacman
 
-pacman: main.cpp pacman.cpp
-	$(CC) -o pacman.x main.cpp pacman.cpp $(LDFLAGS)
+pacman: main.cpp pacman.cpp ghost.cpp food.cpp
+	$(CC) $(CFLAGS) -o pacman$(EXEEXT) main.cpp pacman.cpp ghost.cpp food.cpp $(LDFLAGS)
 
 clean:
-	$(RM) *.x
+	$(RM) *$(EXEEXT)

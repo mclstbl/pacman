@@ -2,9 +2,10 @@
 #define __FOOD_H__
 #endif
 
-struct Food
+class Food
 {
-	float position[3];
+public:
+	float positionF[3];
 
-	void drawFood();
+	void drawFood(bool);
 };

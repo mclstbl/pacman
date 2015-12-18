@@ -10,7 +10,7 @@ public:
 	int lives;
 	int score;
 
-	void draw(void);
+	void drawPacman(void);
 	void move(void);
 	void changeDirection(int d);
 };
