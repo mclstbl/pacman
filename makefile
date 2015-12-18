@@ -20,8 +20,8 @@ endif
 
 all: pacman
 
-pacman: main.cpp
-	$(CC) -o pacman.x main.cpp $(LDFLAGS)
+pacman: main.cpp pacman.cpp
+	$(CC) -o pacman.x main.cpp pacman.cpp $(LDFLAGS)
 
 clean:
 	$(RM) *.x

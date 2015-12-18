@@ -20,7 +20,11 @@ float cols[6][3] = { {1,0,0}, {0,1,1}, {1,1,0}, {0,1,0}, {0,0,1}, {1,0,1} };
 float pos[] = {0,1,0};
 float rot[] = {0, 0, 0};
 float headRot[] = {0, 0, 0};
-float camPos[] = {10, 10, 20};
+// this one works to view multiple cube faces
+//float camPos[] = {10, 10, 20};
+// flat view
+float camPos[] = {0, 0, 20};
+
 float angle = 0.0f;
 
 Pacman P1;
@@ -135,19 +139,23 @@ void special(int key, int x, int y)
 	switch(key)
 	{
 		case GLUT_KEY_LEFT:
-			camPos[0]-=0.1;
+			//camPos[0]-=0.1;
+		  P1.changeDirection(0);
 			break;
 
 		case GLUT_KEY_RIGHT:
-			camPos[0]+=0.1;
+			//camPos[0]+=0.1;
+		  P1.changeDirection(1);
 			break;
 
 		case GLUT_KEY_UP:
-			camPos[2] -= 0.1;
+			//camPos[2] -= 0.1;
+		  P1.changeDirection(2);
 			break;
 
 		case GLUT_KEY_DOWN:
-			camPos[2] += 0.1;
+			//camPos[2] += 0.1;
+		  P1.changeDirection(3);
 			break;
 		
 		case GLUT_KEY_HOME:
@@ -157,7 +165,6 @@ void special(int key, int x, int y)
 		case GLUT_KEY_END:
 			camPos[1] -= 0.1;
 			break;
-
 	}
 	glutPostRedisplay();
 }
@@ -173,8 +180,11 @@ void init(void)
 	gluPerspective(45, 1, 1, 100);
 }
 
-void game(void)
+void idle(void)
 {
+  P1.move();
+
+  glutPostRedisplay();
 }
 
 void display(void)
@@ -187,7 +197,9 @@ void display(void)
 	gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
 	glColor3f(1,1,1);
 
-	drawBox(origin, 10, 10, 10);
+	//drawBox(origin, 10, 10, 10);
+  
+	P1.draw();
 	
 	glutSwapBuffers();
 }
@@ -205,13 +217,12 @@ int main(int argc, char** argv)
 	glutCreateWindow("Pacman");
 
 	glutDisplayFunc(display);
+	glutIdleFunc(idle);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
 
 	glEnable(GL_DEPTH_TEST);
 	init();
-
-  game();
 
 	glutMainLoop();
 

@@ -4,10 +4,13 @@
 
 class Pacman
 {
+public:
 	float position[3];
 	float direction[3];
 	int lives;
 	int score;
 
-	void drawPacman();
+	void draw(void);
+	void move(void);
+	void changeDirection(int d);
 };
