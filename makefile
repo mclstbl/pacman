@@ -21,8 +21,8 @@ endif
 
 all: pacman
 
-pacman: main.cpp pacman.cpp ghost.cpp food.cpp
-	$(CC) $(CFLAGS) -o pacman$(EXEEXT) main.cpp pacman.cpp ghost.cpp food.cpp $(LDFLAGS)
+pacman: main.cpp pacman.cpp ghost.cpp food.cpp text.cpp
+	$(CC) $(CFLAGS) -o pacman$(EXEEXT) main.cpp pacman.cpp ghost.cpp food.cpp text.cpp $(LDFLAGS)
 
 clean:
 	$(RM) *$(EXEEXT)
