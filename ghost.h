@@ -13,6 +13,6 @@ public:
 
 	void drawGhost(void);
 	void init(int);
-	void move(void);
+	void move(float x, float y);
 
 };

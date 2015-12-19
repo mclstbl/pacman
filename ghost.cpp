@@ -160,33 +160,41 @@ void Ghost::init(int p)
       color[0] = 0.87;
       color[1] = 0;
       color[2] = 0.055;
+      /*
       positionG[0] = 0.0;
       positionG[1] = 1.0;
       positionG[2] = 6.0;
+      */
       break;
     case 1:
       color[0] = 0.91;
       color[1] = 0.47;
       color[2] = 0.6;
+      /*
       positionG[0] = 0.0;
       positionG[1] = 2.0;
       positionG[2] = 6.0;
+      */
       break;
     case 2:
       color[0] = 0.055;
       color[1] = 0.6;
       color[2] = 0.87;
+      /*
       positionG[0] = 0.0;
       positionG[1] = 3.0;
       positionG[2] = 6.0;
+      */
       break;
     case 3:
       color[0] = 0.9;
       color[1] = 0.4;
       color[2] = 0;
+      /*
       positionG[0] = 0.0;
       positionG[1] = 4.0;
       positionG[2] = 6.0;
+      */
       break;
     default:
       color[0] = 0.9;
@@ -196,8 +204,9 @@ void Ghost::init(int p)
   }
 }
 
-void Ghost::move(void)
+void Ghost::move(float x, float y)
 {
+	float move_size = 0.05;
 	switch(personality)
 	{
 		case 0:
