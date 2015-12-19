@@ -9,12 +9,15 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include <GL/glut.h>
 #include <math.h>
 
 #include "pacman.h"
 #include "ghost.h"
 #include "food.h"
 #include "text.h"
+#include "walls.h"
 
 float verts[8][3] = { {-1,-1,1}, {-1,1,1}, {1,1,1}, {1,-1,1}, {-1,-1,-1}, {-1,1,-1}, {1,1,-1}, {1,-1,-1} };
 float cols[6][3] = { {1,0,0}, {0,1,1}, {1,1,0}, {0,1,0}, {0,0,1}, {1,0,1} };
@@ -29,6 +32,7 @@ float camPos[] = {0, 0, 20};
 
 float angle = 0.0f;
 
+Walls W1;
 Pacman P1;
 Ghost chaser = Ghost(0);
 Ghost ambusher = Ghost(1);
@@ -289,7 +293,8 @@ void display(void)
 	glColor3f(1,1,1);
 
 	//drawBox(origin, 10, 10, 10);
-  
+	
+  	W1.drawWalls();
 	chaser.drawGhost();
   ambusher.drawGhost();
 	fickle.drawGhost();
@@ -322,6 +327,8 @@ int main(int argc, char** argv)
 	glutSpecialFunc(special);
 
 	init();
+	
+	W1.createlist();
 
 	glutMainLoop();
 
