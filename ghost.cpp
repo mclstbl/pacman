@@ -105,8 +105,6 @@ void Ghost::drawGhost(void)
     {{6,-6,2},{8,-6,2},{8,-4,2},{6,-4,2}}
   };
 
-  this -> init(personality);
-
   glColor3fv(color); 
 
   glPushMatrix();
@@ -160,41 +158,33 @@ void Ghost::init(int p)
       color[0] = 0.87;
       color[1] = 0;
       color[2] = 0.055;
-      /*
       positionG[0] = 0.0;
       positionG[1] = 1.0;
       positionG[2] = 6.0;
-      */
       break;
     case 1:
       color[0] = 0.91;
       color[1] = 0.47;
       color[2] = 0.6;
-      /*
       positionG[0] = 0.0;
       positionG[1] = 2.0;
       positionG[2] = 6.0;
-      */
       break;
     case 2:
       color[0] = 0.055;
       color[1] = 0.6;
       color[2] = 0.87;
-      /*
       positionG[0] = 0.0;
       positionG[1] = 3.0;
       positionG[2] = 6.0;
-      */
       break;
     case 3:
       color[0] = 0.9;
       color[1] = 0.4;
       color[2] = 0;
-      /*
       positionG[0] = 0.0;
       positionG[1] = 4.0;
       positionG[2] = 6.0;
-      */
       break;
     default:
       color[0] = 0.9;

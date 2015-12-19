@@ -41,19 +41,38 @@ Ghost fickle = Ghost(2);
 Ghost ignorance = Ghost(3);
 Food food1;
 bool newFood = true;
-int lives = 3;
-bool paused = false;
-bool ghostHit = false;
-int ghost_ctr = 0;
-
-Ghost ghosts[4] = {chaser,ambusher,fickle,ignorance};
+bool paused = true;
+bool newGame = false;
+int lives;
 
 void endGame(void)
 {
 	Text text;
 	char chars[9] = {'G','A','M','E',' ','O','V','E','R'};
 	text.setText(chars);
-	text.drawText(9,-1,0);
+	text.drawText(9,-1,8);
+}
+
+void loseLife(void)
+{
+	Text text;
+	char chars[] = {};
+	text.setText(chars); // 	printf("You lost a life\n");
+	text.drawText(9,-1,8);
+	P1.deleteLife();
+}
+
+void reset(void)
+{
+  // pause game, await arrow press
+  // generate new food position
+  P1.reset(newGame); // true for newGame, false otherwise
+	paused = true;
+	newFood = true;
+	Text text;
+	char chars[] = {};
+	text.setText(chars);
+	text.drawText(9,-1,8);
 }
 
 void die(Pacman p)
@@ -73,16 +92,21 @@ void die(Pacman p)
 bool detectCollision(Ghost ghost,Pacman p)
 {
   // check if p is close to ghost
+  // FIXME: ghost collision doesn't pause the game
 
-	if(fabs(ghost.positionG[0] - p.position[0]) < p.getHeight() / 3 && 
-		 fabs(ghost.positionG[1] - p.position[1]) < p.getHeight() / 2)
-	{
-		ghost_ctr++;
-		printf("ghost collision detected %d\n", ghost_ctr);
-		ghostHit = true;
+	if
+	(
+		sqrt(
+			pow(ghost.positionG[0] - p.position[0],2)
+			+ 
+			pow(ghost.positionG[1] - p.position[1],2)
+		)
+	  < 1
+	)
+  {
+		printf("ghost collision detected %d lives left\n", P1.getLives());
     return true;
 	}
-	ghostHit = false;
 	return false;
 }
 
@@ -92,10 +116,17 @@ bool detectCollision(Food food,Pacman p)
 
 	// sometimes doesnt work when
 	// F  p
-	// FIXME
+	// FIXME: pacman has trouble eating food when food is to the left
 
-	if(fabs(food1.positionF[0] - p.position[0]) < p.getHeight() / 3 && 
-		 fabs(food1.positionF[1] - p.position[1]) < p.getHeight() / 2)
+	if
+	(
+		sqrt(
+			pow(food1.positionF[0] - p.position[0],2)
+			+ 
+			pow(food1.positionF[1] - p.position[1],2)
+		)
+	  < 2
+	)
 	{
     newFood = true;
     printf("food collision detected\n");
@@ -169,8 +200,6 @@ void drawBox(float* c, float w, float h, float d)
 
 void keyboard(unsigned char key, int x, int y)
 {
-
-	/* key presses move the cube, if it isn't at the extents (hard-coded here) */
 	switch (key)
 	{
 		case 'q':
@@ -178,48 +207,12 @@ void keyboard(unsigned char key, int x, int y)
 			exit (0);
 			break;
 
-		case 'a':
-		case 'A':
-			if(pos[0] > -4.4)
-				pos[0] -= 0.1;
-			rot[1] = -90;
-			break;
-
-		case 'w':
-		case 'W':
-			if(pos[2] > -4.4)
-				pos[2] -= 0.1;
-			rot[1] = 180;
-			break;
-
-		case 'd':
-		case 'D':
-			if(pos[0] < 4.4)
-				pos[0]+=0.1;
-			rot[1] = 90;
-			break;
-
-		case 's':
-		case 'S':
-			if(pos[2] < 4.4)
-				pos[2] += 0.1;
-			rot[1] = 0;
-			break;
-
-		case 'y':
-		case 'Y':
-			if(headRot[1] < 85)
-				headRot[1] += 1;
-			break;
-
-		case 'u':
-		case 'U':
-			if(headRot[1] > -85)
-				headRot[1] -= 1;
-			break;
-
 		case 'p':
 		  paused = !paused;
+		  break;
+
+		case 'n':
+		  newGame = true;
 		  break;
 			
 	}
@@ -231,31 +224,23 @@ void special(int key, int x, int y)
 	switch(key)
 	{
 		case GLUT_KEY_LEFT:
-			//camPos[0]-=0.1;
 		  P1.changeDirection(0);
+		  if (paused) paused = false;
 			break;
 
 		case GLUT_KEY_RIGHT:
-			//camPos[0]+=0.1;
 		  P1.changeDirection(1);
+		  if (paused) paused = false;
 			break;
 
 		case GLUT_KEY_UP:
-			//camPos[2] -= 0.1;
 		  P1.changeDirection(2);
+		  if (paused) paused = false;
 			break;
 
 		case GLUT_KEY_DOWN:
-			//camPos[2] += 0.1;
 		  P1.changeDirection(3);
-			break;
-		
-		case GLUT_KEY_HOME:
-			camPos[1] += 0.1;
-			break;
-
-		case GLUT_KEY_END:
-			camPos[1] -= 0.1;
+		  if (paused) paused = false;
 			break;
 	}
 	glutPostRedisplay();
@@ -268,12 +253,16 @@ void init(void)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	//glOrtho(-2, 2, -2, 2, -2, 2);
 	gluPerspective(45, 1, 1, 100);
 
 	glEnable(GL_DEPTH_TEST);
 
 	W1.createList();
+	lives = P1.getLives();
+	chaser.init(0);
+	ambusher.init(1);
+	fickle.init(2);
+	ignorance.init(3);
 }
 
 void idle(void)
@@ -284,17 +273,20 @@ void idle(void)
   //fickle.move();
   //ignorance.move();
 
-  if (P1.getLives() < 0)
+  if (lives - P1.getLives() > 3)
   {
-   	die(P1);
+   	die(P1); //game is paused indefinitely
+   	//FIXME: add keyboard function that starts a new game
   }
   
+  Ghost ghosts[4] = {chaser,ambusher,fickle,ignorance};
+
   for (int i = 0; i < 4; i++)
   {
   	if (detectCollision(ghosts[i],P1))
   	{
-  		P1.deleteLife();
-  		printf("You lost a life\n");
+  		loseLife();
+  		reset(); //new game triggered by life decrement
   	  i = 4; //break out of ghosts loop
   	}
   }
@@ -326,12 +318,13 @@ void display(void)
 	fickle.drawGhost();
 	ignorance.drawGhost();
 
-  if (P1.getLives() > 0)
+  if (lives - P1.getLives() <= 3)
   {
     food1.drawFood(newFood);
   }
  
-  printf("%d\n", P1.getLives());
+  //printf("%d\n", P1.getLives());
+  //printf("%f %f %f\n", P1.getPosX(), P1.getPosY(), P1.getPosZ());
 
   P1.drawPacman();
 
@@ -350,7 +343,10 @@ int main(int argc, char** argv)
 	glutCreateWindow("Pacman");
 
 	glutDisplayFunc(display);
-	glutIdleFunc(idle);
+  if (paused)
+  {
+	  glutIdleFunc(idle);
+	}
 	
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
