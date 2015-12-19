@@ -5,12 +5,13 @@
 #else
 #  include <GL/gl.h>
 #  include <GL/glu.h>
+#  include <GL/glut.h>
 #  include <GL/freeglut.h>
 #endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <GL/glut.h>
 #include <math.h>
 
 #include "pacman.h"
@@ -47,16 +48,25 @@ int ghost_ctr = 0;
 
 Ghost ghosts[4] = {chaser,ambusher,fickle,ignorance};
 
+void endGame(void)
+{
+	Text text;
+	char chars[9] = {'G','A','M','E',' ','O','V','E','R'};
+	text.setText(chars);
+	text.drawText(9,-1,0);
+}
+
 void die(Pacman p)
 {
 	if (P1.position[2] >= -60)
   {
-  	P1.position[2]--;
+  //	P1.position[2]--;
   }
-  // pause and reset
+  // pause until new game
   else
   {
     paused = true;
+    endGame();
   }
 }
 
@@ -80,6 +90,10 @@ bool detectCollision(Food food,Pacman p)
 {
 	// check if p is close to food
 
+	// sometimes doesnt work when
+	// F  p
+	// FIXME
+
 	if(fabs(food1.positionF[0] - p.position[0]) < p.getHeight() / 3 && 
 		 fabs(food1.positionF[1] - p.position[1]) < p.getHeight() / 2)
 	{
@@ -91,13 +105,22 @@ bool detectCollision(Food food,Pacman p)
 	return false;
 }
 
-void endGame(void)
+/*
+bool detectCollision(Wall wall,Pacman p)
 {
-	Text text;
-	char chars[9] = {'G','A','M','E',' ','O','V','E','R'};
-	text.setText(chars);
-	text.drawText();
+	// check if p is close to wall, prevent from moving
+
+	if(fabs(food1.positionF[0] - p.position[0]) < p.getHeight() / 3 && 
+		 fabs(food1.positionF[1] - p.position[1]) < p.getHeight() / 2)
+	{
+    newFood = true;
+    printf("food collision detected\n");
+    return true;
+	}
+	newFood = false;
+	return false;
 }
+*/
 
 void drawPolygon(int a, int b, int c, int d, float v[8][3]){
 	glBegin(GL_POLYGON);
@@ -249,6 +272,8 @@ void init(void)
 	gluPerspective(45, 1, 1, 100);
 
 	glEnable(GL_DEPTH_TEST);
+
+	W1.createList();
 }
 
 void idle(void)
@@ -293,19 +318,23 @@ void display(void)
 	glColor3f(1,1,1);
 
 	//drawBox(origin, 10, 10, 10);
-	
-  	W1.drawWalls();
+  
+  W1.drawWalls();
+
 	chaser.drawGhost();
-  ambusher.drawGhost();
+	ambusher.drawGhost();
 	fickle.drawGhost();
 	ignorance.drawGhost();
 
-  food1.drawFood(newFood);
+  if (P1.getLives() > 0)
+  {
+    food1.drawFood(newFood);
+  }
  
   printf("%d\n", P1.getLives());
 
   P1.drawPacman();
-	
+
 	glutSwapBuffers();
 }
 
@@ -327,8 +356,6 @@ int main(int argc, char** argv)
 	glutSpecialFunc(special);
 
 	init();
-	
-	W1.createlist();
 
 	glutMainLoop();
 
