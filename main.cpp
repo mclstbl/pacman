@@ -9,10 +9,12 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "pacman.h"
 #include "ghost.h"
 #include "food.h"
+#include "text.h"
 
 float verts[8][3] = { {-1,-1,1}, {-1,1,1}, {1,1,1}, {1,-1,1}, {-1,-1,-1}, {-1,1,-1}, {1,1,-1}, {1,-1,-1} };
 float cols[6][3] = { {1,0,0}, {0,1,1}, {1,1,0}, {0,1,0}, {0,0,1}, {1,0,1} };
@@ -21,7 +23,7 @@ float pos[] = {0,1,0};
 float rot[] = {0, 0, 0};
 float headRot[] = {0, 0, 0};
 // this one works to view multiple cube faces
-//float camPos[] = {10, 10, 20};
+// float camPos[] = {10, 10, 20};
 // flat view
 float camPos[] = {0, 0, 20};
 
@@ -34,6 +36,64 @@ Ghost fickle = Ghost(2);
 Ghost ignorance = Ghost(3);
 Food food1;
 bool newFood = true;
+int lives = 3;
+bool paused = false;
+bool ghostHit = false;
+int ghost_ctr = 0;
+
+Ghost ghosts[4] = {chaser,ambusher,fickle,ignorance};
+
+void die(Pacman p)
+{
+	if (P1.position[2] >= -60)
+  {
+  	P1.position[2]--;
+  }
+  // pause and reset
+  else
+  {
+    paused = true;
+  }
+}
+
+bool detectCollision(Ghost ghost,Pacman p)
+{
+  // check if p is close to ghost
+
+	if(fabs(ghost.positionG[0] - p.position[0]) < p.getHeight() / 3 && 
+		 fabs(ghost.positionG[1] - p.position[1]) < p.getHeight() / 2)
+	{
+		ghost_ctr++;
+		printf("ghost collision detected %d\n", ghost_ctr);
+		ghostHit = true;
+    return true;
+	}
+	ghostHit = false;
+	return false;
+}
+
+bool detectCollision(Food food,Pacman p)
+{
+	// check if p is close to food
+
+	if(fabs(food1.positionF[0] - p.position[0]) < p.getHeight() / 3 && 
+		 fabs(food1.positionF[1] - p.position[1]) < p.getHeight() / 2)
+	{
+    newFood = true;
+    printf("food collision detected\n");
+    return true;
+	}
+	newFood = false;
+	return false;
+}
+
+void endGame(void)
+{
+	Text text;
+	char chars[9] = {'G','A','M','E',' ','O','V','E','R'};
+	text.setText(chars);
+	text.drawText();
+}
 
 void drawPolygon(int a, int b, int c, int d, float v[8][3]){
 	glBegin(GL_POLYGON);
@@ -130,6 +190,10 @@ void keyboard(unsigned char key, int x, int y)
 			if(headRot[1] > -85)
 				headRot[1] -= 1;
 			break;
+
+		case 'p':
+		  paused = !paused;
+		  break;
 			
 	}
 	glutPostRedisplay();
@@ -186,12 +250,32 @@ void init(void)
 void idle(void)
 {
   P1.move();
-  //chaser.move();
+  //chaser.move();)
   //ambusher.move();
   //fickle.move();
   //ignorance.move();
 
-  glutPostRedisplay();
+  if (P1.getLives() < 0)
+  {
+   	die(P1);
+  }
+  
+  for (int i = 0; i < 4; i++)
+  {
+  	if (detectCollision(ghosts[i],P1))
+  	{
+  		P1.deleteLife();
+  		printf("You lost a life\n");
+  	  i = 4; //break out of ghosts loop
+  	}
+  }
+
+  if (detectCollision (food1,P1))
+  {
+  	P1.addScore(10);
+  }
+  
+	glutPostRedisplay();
 }
 
 void display(void)
@@ -206,22 +290,17 @@ void display(void)
 
 	//drawBox(origin, 10, 10, 10);
   
-  P1.drawPacman();
-	
 	chaser.drawGhost();
   ambusher.drawGhost();
 	fickle.drawGhost();
 	ignorance.drawGhost();
 
-  if (newFood)
-  {
-  	food1.drawFood(true);
-  }
-  else
-  {
-  	food1.drawFood(false);
-  }
+  food1.drawFood(newFood);
+ 
+  printf("%d\n", P1.getLives());
 
+  P1.drawPacman();
+	
 	glutSwapBuffers();
 }
 
@@ -238,6 +317,7 @@ int main(int argc, char** argv)
 
 	glutDisplayFunc(display);
 	glutIdleFunc(idle);
+	
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
 
