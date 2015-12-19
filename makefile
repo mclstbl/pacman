@@ -1,6 +1,6 @@
 LDFLAGS = -lGL -lGLU -lglut
 CFLAGS=-g -Wall -std=c++11
-CC=gcc
+CC=g++
 EXEEXT=
 RM=rm
 
