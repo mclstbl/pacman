@@ -1,5 +1,6 @@
 #include "food.h"
 #include <stdlib.h>
+#include <math.h>
 
 #ifdef __APPLE__
 #  include <OpenGL/gl.h>
@@ -18,10 +19,10 @@ void Food::drawFood(bool n)
 	// generate random location of food if n==true
 	if (n == true)
 	{
-	  int x = rand() % 5;
-	  int y = rand() % 5;
-    positionF[0] = (float) 0.10;
-    positionF[1] = (float) 0.10;
+	  int x = rand() % 8 * pow(-1,rand() % 3);
+	  int y = rand() % 8 * pow(-1,rand() % 3);
+    positionF[0] = (float) x;
+    positionF[1] = (float) y;
   }
   
   glColor3f(1.0,1.0,0.0);    
@@ -33,7 +34,7 @@ void Food::drawFood(bool n)
   glPushMatrix();
    
   glTranslatef(positionF[0],positionF[1],positionF[2]);
-  glScalef(0.05,0.05,0.05);
+  glScalef(0.07,0.07,0.07);
 
   glBegin(GL_POLYGON);
 	for (int j = 0; j < 4; j++)
