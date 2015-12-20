@@ -13,12 +13,15 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
+#include <string>
 
 #include "pacman.h"
 #include "ghost.h"
 #include "food.h"
 #include "text.h"
 #include "walls.h"
+
+using namespace std;
 
 float verts[8][3] = { {-1,-1,1}, {-1,1,1}, {1,1,1}, {1,-1,1}, {-1,-1,-1}, {-1,1,-1}, {1,1,-1}, {1,-1,-1} };
 float cols[6][3] = { {1,0,0}, {0,1,1}, {1,1,0}, {0,1,0}, {0,0,1}, {1,0,1} };
@@ -40,26 +43,34 @@ Ghost ambusher = Ghost(1);
 Ghost fickle = Ghost(2);
 Ghost ignorance = Ghost(3);
 Food food1;
+Text gameOverText,minusLife,newGameText,pressArrow,pauseT,newGameT,quitT,plusScore,unPauseT,scoreText,scoreNumber;
+
 bool newFood = true;
-bool paused = true;
+bool paused = false;
 bool newGame = false;
-int lives;
+bool resetGame = true;
+bool endG = false;
+bool ghostHit = false;
+bool foodHit = false;
+
+int wiggleEyes = 1;
+int timer = 1;
 
 void endGame(void)
 {
-	Text text;
-	char chars[9] = {'G','A','M','E',' ','O','V','E','R'};
-	text.setText(chars);
-	text.drawText(9,-1,8);
+	//chars = new char[9];
+	//chars = {'G','A','M','E',' ','O','V','E','R'};
+	endG = true;
+	newFood = false;
+	ghostHit = false;
 }
 
 void loseLife(void)
 {
-	Text text;
-	char chars[] = {};
-	text.setText(chars); // 	printf("You lost a life\n");
-	text.drawText(9,-1,8);
+	//chars = new char[18];
+	//chars = {'Y','O','U',' ','L','O','S','T',' ','A',' ','L','I','F','E',' ',':','('};
 	P1.deleteLife();
+	ghostHit = true;
 }
 
 void reset(void)
@@ -67,12 +78,24 @@ void reset(void)
   // pause game, await arrow press
   // generate new food position
   P1.reset(newGame); // true for newGame, false otherwise
-	paused = true;
+	ghostHit = false;
+	foodHit = false;
+	resetGame = true;
 	newFood = true;
-	Text text;
-	char chars[] = {};
-	text.setText(chars);
-	text.drawText(9,-1,8);
+}
+
+bool wait(int n)
+{
+	// wait (n + timer)
+	// wait maximum of n=10000
+	// store current timer in wait
+	// if timer + n == wait
+	// 	stop wait
+	if (n <= timer)
+	{
+		return true;
+	}
+ 	return false;
 }
 
 void die(Pacman p)
@@ -84,27 +107,49 @@ void die(Pacman p)
   // pause until new game
   else
   {
-    paused = true;
     endGame();
   }
+}
+
+void printText(void)
+{
+	gameOverText.setText(0);
+	minusLife.setText(1);
+	newGameText.setText(2);
+	pressArrow.setText(3);
+	pauseT.setText(4);
+	newGameT.setText(5);
+	quitT.setText(6);
+	plusScore.setText(7);
+	scoreText.setText(8);
+	unPauseT.setText(9);
+ 	std::string temp = std::to_string(P1.getScore());
+	scoreNumber.setText(temp);
 }
 
 bool detectCollision(Ghost ghost,Pacman p)
 {
   // check if p is close to ghost
-  // FIXME: ghost collision doesn't pause the game
 
-	if
-	(
-		sqrt(
-			pow(ghost.positionG[0] - p.position[0],2)
-			+ 
-			pow(ghost.positionG[1] - p.position[1],2)
-		)
-	  < 1
-	)
+  float limit;
+  if (p.getDirection() == 2 && ghost.getPosXg() - p.getPosX() < 1) //means pacman is going up
   {
-		printf("ghost collision detected %d lives left\n", P1.getLives());
+  	limit = 0.9;
+  }
+  else if (p.getDirection() == 0) //down
+  {
+  	limit = 0.1;
+  }
+  else if (abs(p.getDirection()) == 1) // pacman is going left or right
+  {
+  	limit = 0.8;
+  }
+  else
+  {
+  	limit = 0.4;
+  }
+	if(sqrt(pow(ghost.positionG[0] - p.position[0],2)	+ pow(ghost.positionG[1] - p.position[1],2)) < limit)
+  {
     return true;
 	}
 	return false;
@@ -114,22 +159,26 @@ bool detectCollision(Food food,Pacman p)
 {
 	// check if p is close to food
 
-	// sometimes doesnt work when
-	// F  p
-	// FIXME: pacman has trouble eating food when food is to the left
-
-	if
-	(
-		sqrt(
-			pow(food1.positionF[0] - p.position[0],2)
-			+ 
-			pow(food1.positionF[1] - p.position[1],2)
-		)
-	  < 2
-	)
+  float limit = 0.5;
+  if (p.getDirection() == 2) //means pacman is going up
+  {
+  	limit = 0.6;
+  }
+  else if (p.getDirection() == 0) //down
+  {
+  	limit = 0.3;
+  }
+  else if (abs(p.getDirection()) == 1) // pacman is going left or right
+  {
+  	limit = 0.5;
+  }
+  else
+  {
+  	limit = 0.4;
+  }
+	if (sqrt(pow(food1.positionF[0] - p.position[0],2) + pow(food1.positionF[1] - p.position[1],2)) < limit)
 	{
     newFood = true;
-    printf("food collision detected\n");
     return true;
 	}
 	newFood = false;
@@ -224,23 +273,19 @@ void special(int key, int x, int y)
 	switch(key)
 	{
 		case GLUT_KEY_LEFT:
-		  P1.changeDirection(0);
-		  if (paused) paused = false;
+		  if (!paused && resetGame) P1.changeDirection(0);
 			break;
 
 		case GLUT_KEY_RIGHT:
-		  P1.changeDirection(1);
-		  if (paused) paused = false;
+		  if (!paused && resetGame) P1.changeDirection(1);
 			break;
 
 		case GLUT_KEY_UP:
-		  P1.changeDirection(2);
-		  if (paused) paused = false;
+		  if (!paused && resetGame) P1.changeDirection(2);
 			break;
 
 		case GLUT_KEY_DOWN:
-		  P1.changeDirection(3);
-		  if (paused) paused = false;
+		  if (!paused && resetGame) P1.changeDirection(3);
 			break;
 	}
 	glutPostRedisplay();
@@ -256,9 +301,10 @@ void init(void)
 	gluPerspective(45, 1, 1, 100);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	W1.createList();
-	lives = P1.getLives();
 	chaser.init(0);
 	ambusher.init(1);
 	fickle.init(2);
@@ -267,35 +313,54 @@ void init(void)
 
 void idle(void)
 {
-  P1.move();
-  //chaser.move();)
-  //ambusher.move();
-  //fickle.move();
-  //ignorance.move();
-
-  if (lives - P1.getLives() > 3)
+  if (!paused)
   {
-   	die(P1); //game is paused indefinitely
-   	//FIXME: add keyboard function that starts a new game
-  }
-  
-  Ghost ghosts[4] = {chaser,ambusher,fickle,ignorance};
-
-  for (int i = 0; i < 4; i++)
-  {
-  	if (detectCollision(ghosts[i],P1))
-  	{
-  		loseLife();
-  		reset(); //new game triggered by life decrement
-  	  i = 4; //break out of ghosts loop
-  	}
+	  P1.move();
+	  chaser.move(P1.getPosX(),P1.getPosY());
+	  ambusher.move(P1.getPosX(),P1.getPosY());
+	  fickle.move(P1.getPosX(),P1.getPosY());
+	  ignorance.move(P1.getPosX(),P1.getPosY());
   }
 
-  if (detectCollision (food1,P1))
+  if (P1.getLives() < 0)
   {
-  	P1.addScore(10);
+   	die(P1); // food is not regenerated
   }
-  
+  else
+  {
+	  Ghost ghosts[4] = {chaser,ambusher,fickle,ignorance};
+
+	  for (int i = 0; i < 4; i++)
+	  {
+	  	if (detectCollision(ghosts[i],P1))
+	  	{
+	  		loseLife();
+	  		reset(); //new game triggered by life decrementi = 4; //break out of ghosts loop
+	  	}
+	  }
+
+	  if (detectCollision (food1,P1))
+	  {
+	  	P1.addScore(10);
+      foodHit = true;
+	  }
+  }
+
+  if (timer % 20 == 0)
+  {
+  	wiggleEyes *= -1;
+  	wiggleEyes ++;
+  	//text.fade();
+  }
+
+  if (timer > 10000)
+  {
+  	timer = 1;
+  }
+  timer ++;
+
+  printText();
+
 	glutPostRedisplay();
 }
 
@@ -310,23 +375,50 @@ void display(void)
 	glColor3f(1,1,1);
 
 	//drawBox(origin, 10, 10, 10);
-  
-  W1.drawWalls();
 
-	chaser.drawGhost();
-	ambusher.drawGhost();
-	fickle.drawGhost();
-	ignorance.drawGhost();
+	chaser.drawGhost(wiggleEyes);
+	ambusher.drawGhost(wiggleEyes);
+	fickle.drawGhost(wiggleEyes);
+	ignorance.drawGhost(wiggleEyes);
 
-  if (lives - P1.getLives() <= 3)
+  if (P1.getLives() >= 0)
   {
     food1.drawFood(newFood);
   }
  
-  //printf("%d\n", P1.getLives());
-  //printf("%f %f %f\n", P1.getPosX(), P1.getPosY(), P1.getPosZ());
-
   P1.drawPacman();
+
+  W1.drawWalls();
+
+  if(P1.getLives() < 0)
+  {
+ 		gameOverText.drawText(0,0);
+ 	}
+ 	if(ghostHit)
+ 	{
+		minusLife.drawText(0,0);
+	}
+	if(newGame)
+ 	{	
+ 		newGameText.drawText(-3,1);
+ 		pressArrow.drawText(-5,0);
+ 	}
+ 	if(paused)
+ 	{
+ 		unPauseT.drawText(-2,0);
+ 	}
+ 	if(foodHit)
+ 	{
+ 	 	plusScore.drawText(0,0);
+ 	}
+
+ 	scoreText.drawText(-3,7.5);
+ 	scoreNumber.drawText(0,7.5);
+
+ 	//instructions
+ 	pauseT.drawText(3,5);
+ 	newGameT.drawText(3,4.5);
+ 	quitT.drawText(3,4);
 
 	glutSwapBuffers();
 }
@@ -335,7 +427,7 @@ int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	
 	glutInitWindowSize(600, 600);
 	glutInitWindowPosition(800, 0);
@@ -343,10 +435,7 @@ int main(int argc, char** argv)
 	glutCreateWindow("Pacman");
 
 	glutDisplayFunc(display);
-  if (paused)
-  {
-	  glutIdleFunc(idle);
-	}
+	glutIdleFunc(idle);
 	
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
