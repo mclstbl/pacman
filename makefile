@@ -15,7 +15,7 @@ else
 	EXEEXT=.x
 	ifeq ($(OS), Darwin)
 	  CFLAGS =
-		LDFLAGS = -lstdc++ -framework Carbon -framework OpenGL -framework GLUT -Wno-deprecated-declarations
+		LDFLAGS = -std=c++11 -lstdc++ -framework Carbon -framework OpenGL -framework GLUT -Wno-deprecated-declarations
 	endif
 endif
 
