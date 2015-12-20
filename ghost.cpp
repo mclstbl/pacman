@@ -26,12 +26,12 @@ Ghost::Ghost(int p)
 
 float Ghost::getPosXg(void)
 {
-	return positionG[0];
+	return positionG[0] + 0.5;
 }
 
 float Ghost::getPosYg(void)
 {
-	return positionG[1];
+	return positionG[1] - 0.5;
 }
 
 void Ghost::drawGhost(int wiggle)
