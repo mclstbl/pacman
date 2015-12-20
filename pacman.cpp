@@ -52,6 +52,11 @@ void Pacman::deleteLife(void)
 	lives_p --;
 }
 
+void Pacman::addLife(void)
+{
+	lives_p ++;
+}
+
 int Pacman::getScore(void)
 {
 	return score_p;
@@ -67,7 +72,7 @@ float Pacman::getHeight(void)
   return (13 * 0.1);
 }
 
-void Pacman::drawPacman(void)
+void Pacman::drawPacman(int blink)
 {
   /*
   012345678910
@@ -117,6 +122,10 @@ void Pacman::drawPacman(void)
    	{{3,-12,0},{7,-12,0},{7,-11,0},{3,-11,0}}
   };
 
+  float eye[4][3] = {
+  	{4,-3,1},{6,-3,1},{6,-1,1},{4,-1,1}
+  };
+
   // pacman faces movement direction
   if (direction[0] == -1)
   {
@@ -143,7 +152,7 @@ void Pacman::drawPacman(void)
 
   glTranslatef(position[0],position[1],position[2]);
   glRotatef(angle_p,0,0,1);
-  glScalef(0.05,0.05,0.05);
+  glScalef(0.03,0.03,0.03);
 
   for (int i = 0; i < 13; i ++)
   {
@@ -154,6 +163,20 @@ void Pacman::drawPacman(void)
       }
 	  glEnd();
 	}
+
+	glPushMatrix();
+
+  glTranslatef(0,0,blink);
+
+	glColor3f(0.1,0.1,0.1);
+		glBegin(GL_POLYGON);
+		for (int i = 0; i < 4; i ++)
+		{
+			glVertex3fv(eye[i]);
+		}
+		glEnd();
+
+	glPopMatrix();
 	glPopMatrix();
 }
 
@@ -183,8 +206,6 @@ void Pacman::move(void)
 
 void Pacman::changeDirection(int d)
 {
-	// FIXME: pacman should only turn if there is no wall
-	// FIXME: only turn if 1 - position < 0.01
 	// left,right,up,down
 	if ((int)position[0] * 2 % 2 <= 0.2 && (int)position[1] * 2 % 2 <= 0.2)
 	{

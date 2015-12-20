@@ -12,7 +12,7 @@ public:
 	float color_p[3] = {1.0,1.0,0.0};
 	float mouth[3];
 
-	void drawPacman(void);
+	void drawPacman(int);
 	void move(void);
 	void changeDirection(int d);
 	int getLives(void);
@@ -24,5 +24,6 @@ public:
 
   void reset(bool);
 	void deleteLife(void);
+	void addLife(void);
 	void addScore(int);
 };
