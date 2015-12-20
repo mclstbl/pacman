@@ -26,12 +26,12 @@ Ghost::Ghost(int p)
 
 float Ghost::getPosXg(void)
 {
-	return positionG[0] + 0.5;
+	return positionG[0];// + 0.5;
 }
 
 float Ghost::getPosYg(void)
 {
-	return positionG[1] - 0.5;
+	return positionG[1];// - 0.5;
 }
 
 void Ghost::drawGhost(int wiggle)
@@ -122,9 +122,8 @@ void Ghost::drawGhost(int wiggle)
 
   glPushMatrix();
 
- // printf("wiggle\n");
 	glTranslatef(positionG[0],positionG[1],positionG[2]);
-	glScalef(0.05,0.05,0.05);
+	glScalef(0.03,0.03,0.03);
    
   for (int i = 0; i < 12; i ++)
   {
@@ -228,7 +227,7 @@ void Ghost::init(int p)
 
 void Ghost::move(float x, float y)
 {
-	float move_size = 0.05;
+	float move_size = 0.4 + 0.3 * pow(-1,rand() % 2) + 0.05 * pow(-1,rand() % 2);
 	/*
 	switch(personality)
 	{
@@ -246,11 +245,11 @@ void Ghost::move(float x, float y)
 		  break;
 		default:
 		*/
-		/*
+		
 		  float movX, movY;
-		  movX = move_size * x + (rand() % 2) / 100;
-		  movY = move_size * y + (rand() % 2) / 100;
-
+		//  movX = move_size * x + (rand() % 2) / 100;
+		//  movY = move_size * y + (rand() % 2) / 100;
+/*
       int max = 5;
       if(movX > max)
       {
@@ -272,11 +271,10 @@ void Ghost::move(float x, float y)
         directionG[0] = 0;
         directionG[1] = 1;
       }
-
-			positionG[0] = movX;
-		  positionG[1] = movY;
+*/
+		//	positionG[0] = move_size * x;
+		//  positionG[1] = move_size * y;
 		
-			break;
-	}
-	*/
+//			break;
+//	}
 }
