@@ -14,13 +14,15 @@
 #  include <GL/freeglut.h>
 #endif
 
-float positionF[3] = {0.0,0.0,6.0};	//setting position of the food
+#include <stdio.h>
+
+float positionF[3] = {0.0,0.0,6.0}; //setting position of the food
 
 void Food::drawFood(bool n){	//drawFood function of object Food
 	// generate new random location of food if n==true
 	if (n == true){
-	  int x = rand() % 8 * pow(-1,rand() % 2);	//creating a random x position
-	  int y = rand() % 8 * pow(-1,rand() % 2);	//creating a random y position
+	  int x = rand() % 5 * pow(-1,rand() % 2);	//creating a random x position
+	  int y = rand() % 5 * pow(-1,rand() % 2);	//creating a random y position
     positionF[0] = (float) x;	//applying x position
     positionF[1] = (float) y;	//applying y position
   }
