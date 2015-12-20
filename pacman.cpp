@@ -10,42 +10,56 @@
 #  include <GL/freeglut.h>
 #endif
 
-float position[3] = {0.0,0.0,6.0};
+#include <stdio.h>
+
+float position[3] = {4.0,2.0,6.0};
 float direction[3] = {0,1,0};
 int lives_p = 3;
 int score_p = 0;
-float angle_p = 0;
 float color_p[3] = {1.0,1.0,0.0};
+float mouth[3];
+
+float angle_p = 0;
 
 int Pacman::getDirection()
 {
 	for (int i = 0; i < 3; i ++)
 	{
-		if (this -> direction[i] != 0)
-			return i;
+		if (direction[i] != 0)
+			return direction[i] + i;
 	}
 
 	return 0;
 }
 
+float Pacman::getPosX(void)
+{
+	return position[0];
+}
+
+float Pacman::getPosY(void)
+{
+	return position[1];
+}
+
 int Pacman::getLives(void)
 {
-	return this -> lives_p;
+	return this->lives_p;
 }
 
 void Pacman::deleteLife(void)
 {
-	this -> lives_p --;
+	lives_p --;
 }
 
 int Pacman::getScore(void)
 {
-	return this -> score_p;
+	return score_p;
 }
 
 void Pacman::addScore(int s)
 {
-	this -> score_p += 10;
+	score_p += 10;
 }
 
 float Pacman::getHeight(void)
@@ -72,14 +86,20 @@ void Pacman::drawPacman(void)
      xxxxx
   */
 
-  if (position[2] >= 6)
+  if (lives_p >= 0)// || position[2] >= 6.0)
   {
-    glColor3fv(color_p);
+    color_p[0] = 1.0;
+    color_p[1] = 1.0;
+    color_p[2] = 0.0;
   }
   else
   {
-  	glColor3f(0.8,0.8,0.8);
+  	color_p[0] = 0.8;
+  	color_p[1] = 0.8; 
+  	color_p[2] = 0.8;
   }
+
+  glColor3fv(color_p);
 
   float vertices[13][4][3] = {
   	{{3,0,0},{7,0,0},{7,1,0},{3,1,0}},
@@ -123,7 +143,7 @@ void Pacman::drawPacman(void)
 
   glTranslatef(position[0],position[1],position[2]);
   glRotatef(angle_p,0,0,1);
-  glScalef(0.1,0.1,0.1);
+  glScalef(0.05,0.05,0.05);
 
   for (int i = 0; i < 13; i ++)
   {
@@ -137,6 +157,21 @@ void Pacman::drawPacman(void)
 	glPopMatrix();
 }
 
+void Pacman::reset(bool n)
+{
+	// reset color, position
+	// new life, doesnt mean new game
+	if (n)
+	{
+	//unless n == true
+		lives_p = 3;
+		score_p = 0;
+	}
+  position[0] = 4.0;
+  position[1] = 2.0;
+  position[2] = 6.0;
+}
+
 void Pacman::move(void)
 {
 	// pacman keeps moving, depending on direction value
@@ -148,28 +183,33 @@ void Pacman::move(void)
 
 void Pacman::changeDirection(int d)
 {
+	// FIXME: pacman should only turn if there is no wall
+	// FIXME: only turn if 1 - position < 0.01
 	// left,right,up,down
-	switch(d)
+	if ((int)position[0] * 2 % 2 <= 0.2 && (int)position[1] * 2 % 2 <= 0.2)
 	{
-		case 0:
-      direction[0] = -1;
-      direction[1] = 0;
-      direction[2] = 0;
-		  break;
-		case 1:
-      direction[0] = 1;
-      direction[1] = 0;
-      direction[2] = 0;
-		  break;
-		case 2:
-      direction[0] = 0;
-      direction[1] = 1;
-      direction[2] = 0;
-		  break;
-		case 3:
-      direction[0] = 0;
-      direction[1] = -1;
-      direction[2] = 0;
-		  break;
+		switch(d)
+		{
+			case 0:
+	      direction[0] = -1;
+	      direction[1] = 0;
+	      direction[2] = 0;
+			  break;
+			case 1:
+	      direction[0] = 1;
+	      direction[1] = 0;
+	      direction[2] = 0;
+			  break;
+			case 2:
+	      direction[0] = 0;
+	      direction[1] = 1;
+	      direction[2] = 0;
+			  break;
+			case 3:
+	      direction[0] = 0;
+	      direction[1] = -1;
+	      direction[2] = 0;
+			  break;
+		}
 	}
 }
