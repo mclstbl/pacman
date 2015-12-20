@@ -1,5 +1,7 @@
 #include "ghost.h"
-#include "pacman.h"
+#include <stdlib.h>	//including standard library
+#include <math.h>	//including math functions
+#include <stdio.h>
 
 #ifdef __APPLE__
 #  include <OpenGL/gl.h>
@@ -11,6 +13,7 @@
 #  include <GL/freeglut.h>
 #endif
 
+
 float positionG[3] = {0.0,0.0,6.0};
 float directionG[3] = {0,0,0};
 float color[3];
@@ -21,7 +24,17 @@ Ghost::Ghost(int p)
 	personality = p;
 }
 
-void Ghost::drawGhost(void)
+float Ghost::getPosXg(void)
+{
+	return positionG[0];
+}
+
+float Ghost::getPosYg(void)
+{
+	return positionG[1];
+}
+
+void Ghost::drawGhost(int wiggle)
 {
   /*
   x = color
@@ -109,10 +122,11 @@ void Ghost::drawGhost(void)
 
   glPushMatrix();
 
+ // printf("wiggle\n");
 	glTranslatef(positionG[0],positionG[1],positionG[2]);
 	glScalef(0.05,0.05,0.05);
    
-  for (int i = 0; i < 20; i ++)
+  for (int i = 0; i < 12; i ++)
   {
     glBegin(GL_POLYGON);
       for (int j = 0; j < 4; j++)
@@ -121,6 +135,20 @@ void Ghost::drawGhost(void)
       }
     glEnd();
   }
+
+  glPushMatrix();
+
+  glTranslatef(wiggle,0,0);
+  for (int i = 12; i < 20; i ++)
+  {
+    glBegin(GL_POLYGON);
+      for (int j = 0; j < 4; j++)
+  	  {
+        glVertex3fv(vertices[i][j]);
+      }
+    glEnd();
+  }
+  glPopMatrix();
 
   glColor3fv(white);   
   for (int i = 0; i < 10; i ++)
@@ -133,6 +161,9 @@ void Ghost::drawGhost(void)
     glEnd();
   }
 
+  glPushMatrix();
+
+  glTranslatef(wiggle,0,0);
   glColor3fv(blue);
   for (int i = 0; i < 2; i ++)
   {
@@ -143,7 +174,8 @@ void Ghost::drawGhost(void)
       }
     glEnd();
   }
-
+  
+  glPopMatrix();
   glPopMatrix();
 }
 
@@ -197,6 +229,7 @@ void Ghost::init(int p)
 void Ghost::move(float x, float y)
 {
 	float move_size = 0.05;
+	/*
 	switch(personality)
 	{
 		case 0:
@@ -211,5 +244,39 @@ void Ghost::move(float x, float y)
 		case 3:
 		//feigning ignorance
 		  break;
+		default:
+		*/
+		/*
+		  float movX, movY;
+		  movX = move_size * x + (rand() % 2) / 100;
+		  movY = move_size * y + (rand() % 2) / 100;
+
+      int max = 5;
+      if(movX > max)
+      {
+        directionG[0] = -1;
+        directionG[1] = 0;
+      }
+      else if(movX < -1 * max)
+      {
+        directionG[0] = 1;
+        directionG[1] = 0;
+      }
+      if(movY > max)
+      {
+        directionG[0] = 0;
+        directionG[1] = -1;
+      }
+      else if(movY < -1 * max)
+      {
+        directionG[0] = 0;
+        directionG[1] = 1;
+      }
+
+			positionG[0] = movX;
+		  positionG[1] = movY;
+		
+			break;
 	}
+	*/
 }

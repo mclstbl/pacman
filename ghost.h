@@ -6,12 +6,15 @@ class Ghost
 {
 public:
 	Ghost(int);
-	float positionG[3];
-	float directionG[3];
+	float positionG[3] = {0.0,0.0,6.0};
+	float directionG[3] = {0,0,0};
 	float color[3];
-	int personality;
+	int personality = 0;
 
-	void drawGhost(void);
+  float getPosXg(void);
+  float getPosYg(void);
+
+	void drawGhost(int);
 	void init(int);
 	void move(float,float);
 };
