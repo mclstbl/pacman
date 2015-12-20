@@ -43,7 +43,7 @@ Ghost ambusher = Ghost(1);
 Ghost fickle = Ghost(2);
 Ghost ignorance = Ghost(3);
 Food food1;
-Text gameOverText,minusLife,newGameText,pressArrow,pauseT,newGameT,quitT,plusScore,unPauseT,scoreText,scoreNumber;
+Text gameOverText,minusLife,newGameText,pressArrow,pauseT,newGameT,quitT,plusScore,unPauseT,scoreText; //,scoreNumber,countdown;
 
 bool newFood = true;
 bool paused = false;
@@ -52,14 +52,15 @@ bool resetGame = true;
 bool endG = false;
 bool ghostHit = false;
 bool foodHit = false;
+bool plusLife = true;
 
 int wiggleEyes = 1;
 int timer = 1;
+int wait_v; // change this value to current timer + n to wait
+bool cur_wait;
 
 void endGame(void)
 {
-	//chars = new char[9];
-	//chars = {'G','A','M','E',' ','O','V','E','R'};
 	endG = true;
 	newFood = false;
 	ghostHit = false;
@@ -67,8 +68,6 @@ void endGame(void)
 
 void loseLife(void)
 {
-	//chars = new char[18];
-	//chars = {'Y','O','U',' ','L','O','S','T',' ','A',' ','L','I','F','E',' ',':','('};
 	P1.deleteLife();
 	ghostHit = true;
 }
@@ -82,16 +81,19 @@ void reset(void)
 	foodHit = false;
 	resetGame = true;
 	newFood = true;
+	wait_v = timer + 250;
+
+	chaser.init(0);
+	ambusher.init(1);
+	fickle.init(2);
+	ignorance.init(3);
 }
 
-bool wait(int n)
+bool wait(void)
 {
-	// wait (n + timer)
+	// set wait_v to current timer + n
 	// wait maximum of n=10000
-	// store current timer in wait
-	// if timer + n == wait
-	// 	stop wait
-	if (n <= timer)
+	if (wait_v <= timer || wait_v == 0)
 	{
 		return true;
 	}
@@ -100,15 +102,16 @@ bool wait(int n)
 
 void die(Pacman p)
 {
-	if (P1.position[2] >= -60)
-  {
-  //	P1.position[2]--;
-  }
-  // pause until new game
-  else
-  {
-    endGame();
-  }
+  endGame();
+}
+
+int intLength(int n, int s)
+{
+	if (n <= 0)
+	{
+		return s + 1;
+	}
+	return intLength(n / 10, s + 1);
 }
 
 void printText(void)
@@ -123,8 +126,6 @@ void printText(void)
 	plusScore.setText(7);
 	scoreText.setText(8);
 	unPauseT.setText(9);
- 	std::string temp = std::to_string(P1.getScore());
-	scoreNumber.setText(temp);
 }
 
 bool detectCollision(Ghost ghost,Pacman p)
@@ -134,19 +135,19 @@ bool detectCollision(Ghost ghost,Pacman p)
   float limit;
   if (p.getDirection() == 2 && ghost.getPosXg() - p.getPosX() < 1) //means pacman is going up
   {
-  	limit = 0.9;
+  	limit = 0.5;
   }
   else if (p.getDirection() == 0) //down
   {
-  	limit = 0.1;
+  	limit = 0.2;
   }
   else if (abs(p.getDirection()) == 1) // pacman is going left or right
   {
-  	limit = 0.8;
+  	limit = 0.3;
   }
   else
   {
-  	limit = 0.4;
+  	limit = 0.2;
   }
 	if(sqrt(pow(ghost.positionG[0] - p.position[0],2)	+ pow(ghost.positionG[1] - p.position[1],2)) < limit)
   {
@@ -166,11 +167,11 @@ bool detectCollision(Food food,Pacman p)
   }
   else if (p.getDirection() == 0) //down
   {
-  	limit = 0.3;
+  	limit = 0.7;
   }
   else if (abs(p.getDirection()) == 1) // pacman is going left or right
   {
-  	limit = 0.5;
+  	limit = 0.65;
   }
   else
   {
@@ -313,9 +314,12 @@ void init(void)
 
 void idle(void)
 {
-  if (!paused)
+	cur_wait = wait(); //constantly check if system is waiting
+
+  if (!paused && cur_wait || foodHit && !paused) //paused and waiting
   {
 	  P1.move();
+  	wait_v = 0;
 	  chaser.move(P1.getPosX(),P1.getPosY());
 	  ambusher.move(P1.getPosX(),P1.getPosY());
 	  fickle.move(P1.getPosX(),P1.getPosY());
@@ -335,15 +339,27 @@ void idle(void)
 	  	if (detectCollision(ghosts[i],P1))
 	  	{
 	  		loseLife();
-	  		reset(); //new game triggered by life decrementi = 4; //break out of ghosts loop
+	  		newGame = false;
+	  		reset(); //new game triggered by life decrement
+	  		i = 4; //break out of ghosts loop
 	  	}
 	  }
 
 	  if (detectCollision (food1,P1))
 	  {
 	  	P1.addScore(10);
+	  	if (P1.getScore() % 100 == 0)
+	  	{
+	  		plusLife = true;
+	  	}
       foodHit = true;
+      wait_v = timer + 200;
 	  }
+  }
+
+  if(!cur_wait && wait_v - timer <= 1)
+  {
+ // 	foodHit = false;
   }
 
   if (timer % 20 == 0)
@@ -355,9 +371,15 @@ void idle(void)
 
   if (timer > 10000)
   {
-  	timer = 1;
+  	//timer = 1;
   }
   timer ++;
+
+  if (P1.getScore() % 100 == 0 && P1.getScore() > 0 && plusLife)
+  {
+  	P1.addLife();
+  	plusLife = false;
+  }
 
   printText();
 
@@ -383,17 +405,19 @@ void display(void)
 
   if (P1.getLives() >= 0)
   {
-    food1.drawFood(newFood);
+    food1.drawFood(newFood,wiggleEyes % 2);
   }
  
-  P1.drawPacman();
+  P1.drawPacman(wiggleEyes);
 
   W1.drawWalls();
+  //W1.draw();
 
   if(P1.getLives() < 0)
   {
  		gameOverText.drawText(0,0);
  	}
+ 	glColor3f(0,1,0);
  	if(ghostHit)
  	{
 		minusLife.drawText(0,0);
@@ -407,18 +431,70 @@ void display(void)
  	{
  		unPauseT.drawText(-2,0);
  	}
- 	if(foodHit)
+ 	if(foodHit && !cur_wait)
  	{
- 	 	plusScore.drawText(0,0);
+ 	 	//plusScore.drawText(0,0);
  	}
 
- 	scoreText.drawText(-3,7.5);
+	glColor3f(1,1,1);
+ 	scoreText.drawText(-2,7.5);
+ 	
+ 	Text scoreNumber;
+	int l;
+	std::string temp;
+	temp = std::to_string(P1.getScore());
+ 	l = intLength (P1.getScore(),0);
+	scoreNumber.setText(l,temp);
+	glColor3f(1,1,1);
  	scoreNumber.drawText(0,7.5);
 
- 	//instructions
+ 	glColor3f(1,1,1);
+ 	if(!cur_wait && !foodHit && !paused && !endG)
+	{
+		Text countdown;
+		//print 3..2..1
+		int diff = wait_v - timer;
+
+		if(diff <= 70)
+		{
+			temp = std::to_string((int)0);
+		}
+		else if(diff <= 120)
+		{
+			temp = std::to_string((int)1);
+		}
+		else if(diff <= 170)
+		{
+			temp = std::to_string((int)2);
+		}
+		else
+		{
+			temp = std::to_string((int)3);
+		}
+ 		l = 1;
+		countdown.setText(l,temp);
+ 		countdown.drawText(0,0);
+ 	}
+
+ 	// instructions
+ 	glColor3f(1,1,1);
  	pauseT.drawText(3,5);
+ 	glColor3f(1,1,1);
  	newGameT.drawText(3,4.5);
+ 	glColor3f(1,1,1);
  	quitT.drawText(3,4);
+
+ 	// draw lives
+ 	for (int i = 0; i < P1.getLives(); i ++)
+ 	{
+ 		Pacman life;
+ 		glPushMatrix();
+ 		glRotatef(90.0,0.0,0.0,1.0);
+ 		glTranslatef(5,6 - i * 0.2,-4);
+ 		glScalef(0.5,0.5,1);
+ 		life.drawPacman(wiggleEyes);
+ 		glPopMatrix();
+ 	}
 
 	glutSwapBuffers();
 }
