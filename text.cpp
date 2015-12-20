@@ -33,6 +33,12 @@ void Text::drawText(float x , float y){
 	glPopMatrix();
 }
 
+void Text::setText(int l, string c)
+{
+	length = l;
+	characters = (char* )(c.c_str());
+}
+
 void Text::setText(int c)
 {
   switch (c)
@@ -77,26 +83,7 @@ void Text::setText(int c)
     	length = 18;
     	characters = "Press P to unpause";
     	break;
-    /*
-    default:
-    	length = 6;
-			//sprintf(characters, "%d", c);
-			//printf("%c\n", characters);
-    	
-    	std::string temp = std::to_string(c);
-
-    	//std::string s = std::to_string(number);
-			//characters = temp.c_str()
-			strcpy(characters, temp.c_str());
-    	break;
-    */
   }
-}
-
-void Text::setText(string c)
-{
-	length = 6;
-	characters = (char* )c.c_str();
 }
 
 void Text::fade(void){

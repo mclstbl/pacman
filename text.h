@@ -14,7 +14,7 @@ public:
 	int length = 0;
 
 	void drawText(float,float);
+	void setText(int,std::string);
 	void setText(int);
-	void setText(std::string);
 	void fade(void);
 };
