@@ -517,6 +517,8 @@ int main(int argc, char** argv)
 	glutSpecialFunc(special);
 
 	init();
+	
+	W1.createList();
 
 	glutMainLoop();
 
