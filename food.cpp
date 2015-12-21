@@ -54,13 +54,13 @@ void Food::drawFood(bool n,int shine){	//drawFood function of object Food
     {0,0,0},{4,0,0},{4,4,0},{0,4,0}
   };
 
-  float specs[2][4][3] = {
-    {{0,0,8},{0.5,0,8},{0.5,0.5,8},{0,0.5,8}},
-    {{0,0,8},{0.7,0,8},{0.7,0.7,8},{0,0.7,8}},
+  float specs[4][3] = {
+    {0,0,-1},{4,0,-1},{4,4,-1},{0,4,-1}
   };
 
   glPushMatrix();	//save current matrix
-   
+  
+
   glTranslatef(positionF[0],positionF[1],positionF[2]);	//translating the position of the food based on x and y
   glScalef(0.05,0.05,0.05);	//scaling the object down to 7% its original size
 
