@@ -1,5 +1,5 @@
 LDFLAGS = -lGL -lGLU -lglut
-CFLAGS=-g -Wall -std=c++11
+CFLAGS=-g -w -std=c++11
 CC=g++
 EXEEXT=
 RM=rm

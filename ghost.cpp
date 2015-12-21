@@ -1,6 +1,6 @@
 #include "ghost.h"
-#include <stdlib.h>	//including standard library
-#include <math.h>	//including math functions
+#include <stdlib.h> //including standard library
+#include <math.h> //including math functions
 #include <stdio.h>
 
 #ifdef __APPLE__
@@ -28,19 +28,28 @@ void Ghost::setBoundsG(float x1,float y1,float x2,float y2)
   boundingBoxG[3] = y2;
 }
 
+void Ghost::setPositionG(float x,float y,float z)
+{
+  positionG[0] = x;
+  positionG[1] = y;
+  positionG[2] = z;
+}
+
+
+
 Ghost::Ghost(int p)
 {
-	personality = p;
+  personality = p;
 }
 
 float Ghost::getPosXg(void)
 {
-	return positionG[0];
+  return positionG[0];
 }
 
 float Ghost::getPosYg(void)
 {
-	return positionG[1];
+  return positionG[1];
 }
 
 void Ghost::drawGhost(int wiggle)
@@ -70,28 +79,28 @@ void Ghost::drawGhost(int wiggle)
   float blue[3] = {0.086,0.18,0.49};
 
   float vertices[20][4][3] = {
-  	{{4,0,0},{9,0,0},{9,1,0},{4,1,0}},
-  	{{2,-1,0},{10,-1,0},{10,0,0},{2,0,0}},
-  	{{1,-2,0},{11,-2,0},{11,-1,0},{1,-1,0}},
-  	{{0,-3,0},{12,-3,0},{12,-2,0},{0,-2,0}},
-  	{{0,-4,0},{12,-4,0},{12,-3,0},{0,-3,0}},
-  	{{0,-5,0},{12,-5,0},{12,-4,0},{0,-4,0}},
-  	{{-1,-6,0},{13,-6,0},{13,-5,0},{-1,-5,0}},
-  	{{-1,-7,0},{13,-7,0},{13,-6,0},{-1,-6,0}},
-  	{{-1,-8,0},{13,-8,0},{13,-7,0},{-1,-7,0}},
-  	{{-1,-9,0},{13,-9,0},{13,-8,0},{-1,-8,0}},
-  	{{-1,-10,0},{13,-10,0},{13,-9,0},{-1,-9,0}},
-  	{{-1,-11,0},{13,-11,0},{13,-10,0},{-1,-10,0}},
+    {{4,0,0},{9,0,0},{9,1,0},{4,1,0}},
+    {{2,-1,0},{10,-1,0},{10,0,0},{2,0,0}},
+    {{1,-2,0},{11,-2,0},{11,-1,0},{1,-1,0}},
+    {{0,-3,0},{12,-3,0},{12,-2,0},{0,-2,0}},
+    {{0,-4,0},{12,-4,0},{12,-3,0},{0,-3,0}},
+    {{0,-5,0},{12,-5,0},{12,-4,0},{0,-4,0}},
+    {{-1,-6,0},{13,-6,0},{13,-5,0},{-1,-5,0}},
+    {{-1,-7,0},{13,-7,0},{13,-6,0},{-1,-6,0}},
+    {{-1,-8,0},{13,-8,0},{13,-7,0},{-1,-7,0}},
+    {{-1,-9,0},{13,-9,0},{13,-8,0},{-1,-8,0}},
+    {{-1,-10,0},{13,-10,0},{13,-9,0},{-1,-9,0}},
+    {{-1,-11,0},{13,-11,0},{13,-10,0},{-1,-10,0}},
 
-  	{{-1,-12,0},{1,-12,0},{1,-11,0},{-1,-11,0}},
-  	{{2,-12,0},{5,-12,0},{5,-11,0},{2,-11,0}},
-  	{{7,-12,0},{10,-12,0},{10,-11,0},{7,-11,0}},
-  	{{11,-12,0},{13,-12,0},{13,-11,0},{11,-11,0}},
+    {{-1,-12,0},{1,-12,0},{1,-11,0},{-1,-11,0}},
+    {{2,-12,0},{5,-12,0},{5,-11,0},{2,-11,0}},
+    {{7,-12,0},{10,-12,0},{10,-11,0},{7,-11,0}},
+    {{11,-12,0},{13,-12,0},{13,-11,0},{11,-11,0}},
 
-  	{{-1,-13,0},{0,-13,0},{0,-12,0},{-1,-12,0}},
-  	{{3,-13,0},{5,-13,0},{5,-12,0},{3,-12,0}},
-  	{{7,-13,0},{9,-13,0},{9,-12,0},{7,-12,0}},
-  	{{12,-13,0},{13,-13,0},{13,-12,0},{12,-12,0}}
+    {{-1,-13,0},{0,-13,0},{0,-12,0},{-1,-12,0}},
+    {{3,-13,0},{5,-13,0},{5,-12,0},{3,-12,0}},
+    {{7,-13,0},{9,-13,0},{9,-12,0},{7,-12,0}},
+    {{12,-13,0},{13,-13,0},{13,-12,0},{12,-12,0}}
   };
 
   /*
@@ -131,14 +140,14 @@ void Ghost::drawGhost(int wiggle)
 
   glPushMatrix();
 
-	glTranslatef(positionG[0],positionG[1],positionG[2]);
-	glScalef(0.03,0.03,0.03);
+  glTranslatef(positionG[0],positionG[1],positionG[2]);
+  glScalef(0.03,0.03,0.03);
    
   for (int i = 0; i < 12; i ++)
   {
     glBegin(GL_POLYGON);
       for (int j = 0; j < 4; j++)
-  	  {
+      {
         glVertex3fv(vertices[i][j]);
       }
     glEnd();
@@ -151,7 +160,7 @@ void Ghost::drawGhost(int wiggle)
   {
     glBegin(GL_POLYGON);
       for (int j = 0; j < 4; j++)
-  	  {
+      {
         glVertex3fv(vertices[i][j]);
       }
     glEnd();
@@ -163,7 +172,7 @@ void Ghost::drawGhost(int wiggle)
   {
     glBegin(GL_POLYGON);
       for (int j = 0; j < 4; j++)
-  	  {
+      {
         glVertex3fv(eye_w[i][j]);
       }
     glEnd();
@@ -177,7 +186,7 @@ void Ghost::drawGhost(int wiggle)
   {
     glBegin(GL_POLYGON);
       for (int j = 0; j < 4; j++)
-  	  {
+      {
         glVertex3fv(eye_b[i][j]);
       }
     glEnd();
@@ -189,8 +198,8 @@ void Ghost::drawGhost(int wiggle)
 
 void Ghost::init(int p)
 {
-	// based on personality / behaviour specified in constructor
-	// red, pink, blue, orange
+  // based on personality / behaviour specified in constructor
+  // red, pink, blue, orange
  
   switch(p)
   {
@@ -234,21 +243,35 @@ void Ghost::init(int p)
   }
 }
 
+int Ghost::getDirectionG()
+{
+  int dir = 0;
+  for (int i = 0; i < 3; i ++)
+  {
+    if (directionG[i] != 0)
+      dir = dir + directionG[i] + i;
+  }
+
+  dir = 2;
+
+  return dir;
+}
+
+
 void Ghost::move(float x, float y)
 {
-	float move_size = 0.3;// * pow(-1,rand() % 2) + 0.05 * pow(-1,rand() % 2);
-	float movX, movY;
+  float move_size = 0.015;// * pow(-1,rand() % 2) + 0.05 * pow(-1,rand() % 2);
+  directionG[0] = x;
+  directionG[1] = y;
 
-	// check if new position is within the boundary
-	if (positionG[0] + directionG[0] * move_size > boundingBoxG[0] && positionG[0] + directionG[0] * move_size < boundingBoxG[2])
-	{
-		//go in opposite direction
-		directionG[0] *= -1;
-	}
-	positionG[0] += directionG[0] * move_size;
-	if (positionG[1] + directionG[1] * move_size > boundingBoxG[1] && positionG[1] + directionG[1] * move_size > boundingBoxG[3])
-	{
-		directionG[1] *= -1;
-	}
-	positionG[1] += directionG[1] * move_size;
+  
+
+    if (positionG[0] + directionG[0] * move_size < boundingBoxG[0] && positionG[0] + directionG[0] * move_size > boundingBoxG[2])
+      positionG[0] += directionG[0] * move_size;
+
+    if (positionG[1] + directionG[1] * move_size < boundingBoxG[1] && positionG[1] + directionG[1] * move_size > boundingBoxG[3])
+      positionG[1] += directionG[1] * move_size;
+  
+
 }
+
