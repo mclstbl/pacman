@@ -539,11 +539,7 @@ int main(int argc, char** argv)
 	init();
 	
 	W1.createList();
-<<<<<<< HEAD
 	
-=======
-
->>>>>>> a2d4bad2ae191bbaec3bd4b724746d339ebcb396
 	glutMainLoop();
 
 	return(0);
