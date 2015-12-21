@@ -21,6 +21,8 @@ float boundingBox[4] = {4,4,-4,-4}; // top right and bottom left of bounding box
 
 float angle_p = 0;
 
+float move_size = 0.05;
+
 void Pacman::setBounds(float x1,float y1,float x2,float y2)
 {
 	boundingBox[0] = x1;
@@ -72,7 +74,7 @@ int Pacman::getScore(void)
 
 void Pacman::addScore(int s)
 {
-	score_p += 10;
+	score_p += s;
 }
 
 float Pacman::getHeight(void)
@@ -99,7 +101,7 @@ void Pacman::drawPacman(int blink)
      xxxxx
   */
 
-  if (lives_p >= 0)// || position[2] >= 6.0)
+  if (lives_p >= 0)
   {
     color_p[0] = 1.0;
     color_p[1] = 1.0;
@@ -198,6 +200,9 @@ void Pacman::reset(bool n)
 		lives_p = 3;
 		score_p = 0;
 	}
+  direction[0] = 1;
+  direction[1] = 0;
+  direction[2] = 0;
   position[0] = boundingBox[0] - 0.5;
   position[1] = boundingBox[3] + 0.5;
   position[2] = 6.0;
@@ -206,8 +211,6 @@ void Pacman::reset(bool n)
 void Pacman::move(void)
 {
 	// pacman keeps moving, depending on direction value, unless he hits a wall/boundary
-	float move_size = 0.05;
-
 	//for (int i = 0; i < 3; i ++)
 //	{
 		// check if new position is within the boundary
