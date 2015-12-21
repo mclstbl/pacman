@@ -6,10 +6,12 @@ class Ghost
 {
 public:
 	Ghost(int);
-	float positionG[3] = {0.0,0.0,6.0};
+	float positionG[3] = {-2.0,0.0,6.0};
 	float directionG[3] = {0,0,0};
 	float color[3];
 	int personality = 0;
+
+	void setBoundsG(float,float,float,float);
 
   float getPosXg(void);
   float getPosYg(void);
@@ -17,4 +19,6 @@ public:
 	void drawGhost(int);
 	void init(int);
 	void move(float,float);
+private:
+	float boundingBox[4] = {4,4,-4,-4};
 };

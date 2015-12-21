@@ -12,14 +12,22 @@
 
 #include <stdio.h>
 
-float position[3] = {4.0,2.0,6.0};
+float position[3] = {0.0,-4.0,6.0};
 float direction[3] = {0,1,0};
 int lives_p = 3;
 int score_p = 0;
 float color_p[3] = {1.0,1.0,0.0};
-float mouth[3];
+float boundingBox[4] = {4,4,-4,-4}; // top right and bottom left of bounding box
 
 float angle_p = 0;
+
+void Pacman::setBounds(float x1,float y1,float x2,float y2)
+{
+	boundingBox[0] = x1;
+	boundingBox[1] = y1;
+	boundingBox[2] = x2;
+	boundingBox[3] = y2;
+}
 
 int Pacman::getDirection()
 {
@@ -190,17 +198,27 @@ void Pacman::reset(bool n)
 		lives_p = 3;
 		score_p = 0;
 	}
-  position[0] = 4.0;
-  position[1] = 2.0;
+  position[0] = boundingBox[0] - 0.5;
+  position[1] = boundingBox[3] + 0.5;
   position[2] = 6.0;
 }
 
 void Pacman::move(void)
 {
-	// pacman keeps moving, depending on direction value
+	// pacman keeps moving, depending on direction value, unless he hits a wall/boundary
 	float move_size = 0.05;
-	position[0] += direction[0] * move_size;
-	position[1] += direction[1] * move_size;
+
+	//for (int i = 0; i < 3; i ++)
+//	{
+		// check if new position is within the boundary
+		if (position[0] + direction[0] * move_size < boundingBox[0] && position[0] + direction[0] * move_size > boundingBox[2])
+			position[0] += direction[0] * move_size;
+	//}
+
+		if (position[1] + direction[1] * move_size < boundingBox[1] && position[1] + direction[1] * move_size > boundingBox[3])
+			position[1] += direction[1] * move_size;
+	//position[0] += direction[0] * move_size;
+	//position[1] += direction[1] * move_size;
 	position[2] += direction[2] * move_size;
 }
 

@@ -17,12 +17,32 @@
 #include <stdio.h>
 
 float positionF[3] = {0.0,0.0,6.0}; //setting position of the food
+float boundingBoxF[4] = {4,4,-4,-4};
+
+void Food::setBoundsF(float x1,float y1,float x2,float y2)
+{
+  boundingBoxF[0] = x1;
+  boundingBoxF[1] = y1;
+  boundingBoxF[2] = x2;
+  boundingBoxF[3] = y2;
+}
 
 void Food::drawFood(bool n,int shine){	//drawFood function of object Food
 	// generate new random location of food if n==true
 	if (n == true){
 	  int x = rand() % 5 * pow(-1,rand() % 2);	//creating a random x position
 	  int y = rand() % 5 * pow(-1,rand() % 2);	//creating a random y position
+
+    // check that food is within bounds
+    while (! (x < boundingBoxF[0] && x > boundingBoxF[2]))
+    {
+      x = rand() % 5 * pow(-1,rand() % 2);
+    }
+    while (! (y < boundingBoxF[1] && y > boundingBoxF[3]))
+    {
+      y = rand() % 5 * pow(-1,rand() % 2);
+    }
+
     positionF[0] = (float) x;	//applying x position
     positionF[1] = (float) y;	//applying y position
   }
@@ -52,6 +72,7 @@ void Food::drawFood(bool n,int shine){	//drawFood function of object Food
 	glEnd();	//finish drawing polygon
 
   // add fake shine (specular light) to food
+  /*
   glPushMatrix();
   for (int j = 0; j < 2; j ++)
   {
@@ -65,6 +86,7 @@ void Food::drawFood(bool n,int shine){	//drawFood function of object Food
     }
   }
   glPopMatrix();
+  */
 
 	glPopMatrix();	//revert modelview matrix
 }

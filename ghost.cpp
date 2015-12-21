@@ -14,10 +14,19 @@
 #endif
 
 
-float positionG[3] = {0.0,0.0,6.0};
-float directionG[3] = {0,0,0};
+float positionG[3] = {-2.0,0.0,6.0};
+float directionG[3] = {1,0,0};
 float color[3];
 int personality = 0;
+float boundingBoxG[4] = {4,4,-4,-4};
+
+void Ghost::setBoundsG(float x1,float y1,float x2,float y2)
+{
+  boundingBoxG[0] = x1;
+  boundingBoxG[1] = y1;
+  boundingBoxG[2] = x2;
+  boundingBoxG[3] = y2;
+}
 
 Ghost::Ghost(int p)
 {
@@ -26,12 +35,12 @@ Ghost::Ghost(int p)
 
 float Ghost::getPosXg(void)
 {
-	return positionG[0];// + 0.5;
+	return positionG[0];
 }
 
 float Ghost::getPosYg(void)
 {
-	return positionG[1];// - 0.5;
+	return positionG[1];
 }
 
 void Ghost::drawGhost(int wiggle)
@@ -227,54 +236,19 @@ void Ghost::init(int p)
 
 void Ghost::move(float x, float y)
 {
-	float move_size = 0.4 + 0.3 * pow(-1,rand() % 2) + 0.05 * pow(-1,rand() % 2);
-	/*
-	switch(personality)
+	float move_size = 0.3;// * pow(-1,rand() % 2) + 0.05 * pow(-1,rand() % 2);
+	float movX, movY;
+
+	// check if new position is within the boundary
+	if (positionG[0] + directionG[0] * move_size > boundingBoxG[0] && positionG[0] + directionG[0] * move_size < boundingBoxG[2])
 	{
-		case 0:
-		//chaser
-		  break;
-		case 1:
-		//ambusher
-		  break;
-		case 2:
-		//fickle
-		  break;
-		case 3:
-		//feigning ignorance
-		  break;
-		default:
-		*/
-		
-		  float movX, movY;
-		//  movX = move_size * x + (rand() % 2) / 100;
-		//  movY = move_size * y + (rand() % 2) / 100;
-/*
-      int max = 5;
-      if(movX > max)
-      {
-        directionG[0] = -1;
-        directionG[1] = 0;
-      }
-      else if(movX < -1 * max)
-      {
-        directionG[0] = 1;
-        directionG[1] = 0;
-      }
-      if(movY > max)
-      {
-        directionG[0] = 0;
-        directionG[1] = -1;
-      }
-      else if(movY < -1 * max)
-      {
-        directionG[0] = 0;
-        directionG[1] = 1;
-      }
-*/
-		//	positionG[0] = move_size * x;
-		//  positionG[1] = move_size * y;
-		
-//			break;
-//	}
+		//go in opposite direction
+		directionG[0] *= -1;
+	}
+	positionG[0] += directionG[0] * move_size;
+	if (positionG[1] + directionG[1] * move_size > boundingBoxG[1] && positionG[1] + directionG[1] * move_size > boundingBoxG[3])
+	{
+		directionG[1] *= -1;
+	}
+	positionG[1] += directionG[1] * move_size;
 }
