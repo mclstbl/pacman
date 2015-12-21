@@ -11,6 +11,5 @@ public:
 
 	int Walls_array[31][28];
 
-	void createList(void);
 	void drawWalls (void);
 };
