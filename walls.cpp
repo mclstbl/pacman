@@ -15,10 +15,10 @@
 #include<stdio.h>
 
 
-const int WALLS_X = 31;
-const int WALLS_Y = 28;
+int WALLS_X = 31;
+int WALLS_Y = 28;
 
-int Walls_array[WALLS_X][WALLS_Y] =
+int Walls_array[31][28] =
   { 
 	{ 8, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7 },
 	{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
