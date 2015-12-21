@@ -29,9 +29,6 @@ float cols[6][3] = { {1,0,0}, {0,1,1}, {1,1,0}, {0,1,0}, {0,0,1}, {1,0,1} };
 float pos[] = {0,1,0};
 float rot[] = {0, 0, 0};
 float headRot[] = {0, 0, 0};
-// this one works to view multiple cube faces
-// float camPos[] = {10, 10, 20};
-// flat view
 float camPos[] = {0, 0, 20};
 
 float angle = 0.0f;
@@ -47,17 +44,25 @@ Text gameOverText,minusLife,newGameText,pressArrow,pauseT,newGameT,quitT,plusSco
 
 bool newFood = true;
 bool paused = false;
-bool newGame = false;
+bool newGame = true;
 bool resetGame = true;
 bool endG = false;
 bool ghostHit = false;
 bool foodHit = false;
 bool plusLife = true;
+bool ghostChase = false;
 
 int wiggleEyes = 1;
 int timer = 1;
 int wait_v; // change this value to current timer + n to wait
 bool cur_wait;
+
+std::string bonusColor = "BLUE";
+int bonusPoints = 100;
+bool bonusHit = false;
+int bonusTime = 10;
+int bonusGhost = 0;
+bool bonusInit = false;
 
 float bx1,by1,bx2,by2;
 
@@ -65,7 +70,7 @@ void endGame(void)
 {
 	endG = true;
 	newFood = false;
-	ghostHit = false;
+//	ghostHit = false;
 }
 
 void loseLife(void)
@@ -84,19 +89,18 @@ void reset(void)
 	resetGame = true;
 	newFood = true;
 	wait_v = timer + 250;
-/*
-	newFood = true;
-	paused = true;
-	newGame = true;
-	endG = false;
-	ghostHit = false;
-	foodHit = false;
-	plusLife = false;
-*/
+
 	chaser.init(0);
 	ambusher.init(1);
 	fickle.init(2);
 	ignorance.init(3);
+
+	P1.setBounds(bx1,by1,bx2,by2);
+	food1.setBoundsF(bx1,by1,bx2,by2);
+	chaser.setBoundsG(bx1,by1,bx2,by2);
+	ambusher.setBoundsG(bx1,by1,bx2,by2);
+	fickle.setBoundsG(bx1,by1,bx2,by2);
+	ignorance.setBoundsG(bx1,by1,bx2,by2);
 }
 
 bool wait(void)
@@ -235,11 +239,13 @@ void keyboard(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
+		case 'Q':
 		case 'q':
 		case 27:
 			exit (0);
 			break;
 
+		case 'P':
 		case 'p':
 			if (!endG)
 			{
@@ -247,12 +253,21 @@ void keyboard(unsigned char key, int x, int y)
 		  }
 		  break;
 
+		case 'N':
 		case 'n':
 		  newGame = true;
 		  P1.reset(newGame);
-		  endG = false;
+		  newFood = false;
+		  //endG = false;
 		  break;
-			
+
+		case 'G':
+		case 'g':
+			// cheat ;)
+			printf("ghost chase started\n");
+			ghostChase = true;
+			bonusHit = false;
+			break;
 	}
 	glutPostRedisplay();
 }
@@ -262,18 +277,22 @@ void special(int key, int x, int y)
 	switch(key)
 	{
 		case GLUT_KEY_LEFT:
+			if (newGame && !newFood) newFood = true, newGame = false;
 		  if (!paused && resetGame) P1.changeDirection(0);
 			break;
 
 		case GLUT_KEY_RIGHT:
+			if (newGame && !newFood) newFood = true, newGame = false;
 		  if (!paused && resetGame) P1.changeDirection(1);
 			break;
 
 		case GLUT_KEY_UP:
+			if (newGame && !newFood) newFood = true, newGame = false;
 		  if (!paused && resetGame) P1.changeDirection(2);
 			break;
 
 		case GLUT_KEY_DOWN:
+			if (newGame && !newFood) newFood = true, newGame = false;
 		  if (!paused && resetGame) P1.changeDirection(3);
 			break;
 	}
@@ -290,8 +309,8 @@ void init(void)
 	gluPerspective(45, 1, 1, 100);
 
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_BLEND);
+  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	W1.createList();
 	
@@ -317,8 +336,9 @@ void idle(void)
 {
 	cur_wait = wait(); //constantly check if system is waiting
 
-
-  if (!paused && cur_wait || foodHit && !paused) //paused and waiting
+  if (((!paused && cur_wait) || (foodHit && !paused)) && !newGame)
+  // if not paused & not waiting || food is eaten & not paused || not a new game
+  // let characters move
   {
   	wait_v = 0;
 	  P1.move();
@@ -328,6 +348,7 @@ void idle(void)
 	  ignorance.move(P1.getPosX(),P1.getPosY());
   }
 
+  // check for collisions here
   if (P1.getLives() < 0)
   {
    	die(P1); // food is not regenerated
@@ -360,37 +381,94 @@ void idle(void)
 	  }
   }
 
-	if (newGame)
-	{
-		P1.reset(newGame);
-		reset();
-	}
-
-  if(!cur_wait && wait_v - timer <= 1)
+  // for testing, can be triggered with g key
+  if(ghostChase || (((timer + (rand() % 1000) % 1000 == 0)) && rand() % 2 == 1))
   {
- // 	foodHit = false;
+  	printf("in main collision loop\n");
+  	if (!bonusInit)
+  	{
+  		printf("initializing bonus round\n");
+  		//create bonus
+  		bonusInit = true;
+  		bonusTime = 1000 + rand() % 1000; //print countdown later
+  		bonusPoints = rand () % 1000;
+  		bonusPoints = 10 * (int) bonusPoints / 10; //make sure it's a factor of 10
+  		bonusHit = false;
+  		bonusGhost = rand() % 4;
+  		wait_v = timer + bonusTime;
+  	}
+  }
+
+  cur_wait = wait();
+
+  if((ghostChase && !cur_wait) && !bonusHit)
+  // bonus time is running && bonus has not been hit && waiting for timer
+  {
+  	 printf ("detecting bonus collision\n");
+  	switch (bonusGhost)
+  	{
+  		//red pink blue orange
+  		case 0:
+  			bonusColor = "RED";
+  			if(detectCollision(chaser,P1))
+  			{
+  				P1.addScore(bonusPoints);
+  				bonusHit = true;
+  				wait_v = 0;
+  			}
+  			break;
+  		case 1:
+  			bonusColor = "PINK";
+  			if(detectCollision(ambusher,P1))
+  			{
+  				P1.addScore(bonusPoints);
+  				bonusHit = true;
+  				wait_v = 0;
+  			}
+  			break;
+  		case 2:
+  			bonusColor = "BLUE";
+  			if(detectCollision(fickle,P1))
+  			{
+  				P1.addScore(bonusPoints);
+  				bonusHit = true;
+  				wait_v = 0;
+  			}
+  			break;
+  		case 3:
+  			bonusColor = "ORANGE";
+  			if(detectCollision(ignorance,P1))
+  			{
+  				P1.addScore(bonusPoints);
+  				bonusHit = true;
+  				wait_v = 0;
+  			}
+  			break;
+  	}
+  }
+  else
+  {
+  	wait_v = 0;
+  	bonusInit = false;
+  	bonusHit = false;
   }
 
   if (timer % 20 == 0)
   {
   	wiggleEyes *= -1;
   	wiggleEyes ++;
-  	//text.fade();
   }
-
-  if (timer > 10000)
-  {
-  	//timer = 1;
-  }
-  timer ++;
 
   if (P1.getScore() % 100 == 0 && P1.getScore() > 0 && plusLife)
   {
+  // add life for every 100 points
   	P1.addLife();
   	plusLife = false;
   }
 
-  printText();
+  printText(); // update text
+
+  timer ++;
 
 	glutPostRedisplay();
 }
@@ -405,17 +483,6 @@ void display(void)
 	gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
 	glColor3f(1,1,1);
 
-/*
-bool newFood = true;
-bool paused = false;
-bool newGame = false;
-bool resetGame = true;
-bool endG = false;
-bool ghostHit = false;
-bool foodHit = false;
-bool plusLife = true;
-*/
-
 	boundaryBox(bx1 + 1.5,by1 + 2.7,bx2 - 2.7,by2 - 2.7);
 
   P1.drawPacman(wiggleEyes);
@@ -429,19 +496,14 @@ bool plusLife = true;
   {
     food1.drawFood(newFood,wiggleEyes % 2);
   }
- 
 
   W1.drawWalls();
 
   if(P1.getLives() < 0 && !newGame)
   {
- 		gameOverText.drawText(0,0);
+ 		gameOverText.drawText(-2,0);
  	}
  	glColor3f(0,1,0);
- 	if(ghostHit)
- 	{
-		minusLife.drawText(0,0);
-	}
 	if(newGame)
  	{	
  		newGameText.drawText(-3,1);
@@ -449,11 +511,7 @@ bool plusLife = true;
  	}
  	if(paused)
  	{
- 		unPauseT.drawText(-2,0);
- 	}
- 	if(foodHit && !cur_wait)
- 	{
- 	 	//plusScore.drawText(0,0);
+ 		unPauseT.drawText(-4,0);
  	}
 
 	glColor3f(1,1,1);
@@ -469,7 +527,7 @@ bool plusLife = true;
  	scoreNumber.drawText(-1,7.8);
 
  	glColor3f(1,1,1);
- 	if(!cur_wait && !foodHit && !paused && !endG)
+ 	if(!ghostChase && !cur_wait && !foodHit && !paused && !endG)
 	{
 		Text countdown;
 		//print 3..2..1
@@ -493,8 +551,23 @@ bool plusLife = true;
 		}
  		l = 1;
 		countdown.setText(l,temp);
- 		countdown.drawText(0,0);
+ 		countdown.drawText(-2,0);
  	}
+
+ 	glColor3f(1,1,1);
+ 	if((ghostChase && !cur_wait) && !bonusHit)//!foodHit && !paused && !endG)
+	// (ghostChase is on and waiting for timer) & bonus has not been hit
+	{
+		//print messages on the side
+		int diff = wait_v - timer;
+
+		temp = "";
+		temp = "EAT THE " + bonusColor + " GHOST FOR " + std::to_string(bonusPoints) + " POINTS";
+ 		l = 35;
+		Text notification;
+		notification.setText(l,temp);
+ 		notification.drawText(-6,-2);
+	} 	
 
  	// instructions
  	glColor3f(1,1,1);
@@ -539,7 +612,7 @@ int main(int argc, char** argv)
 	init();
 	
 	W1.createList();
-	
+
 	glutMainLoop();
 
 	return(0);
