@@ -12,6 +12,7 @@ public:
 	int personality = 0;
 
 	void setBoundsG(float,float,float,float);
+	void setPositionG(float,float,float);
 
   float getPosXg(void);
   float getPosYg(void);
@@ -19,6 +20,7 @@ public:
 	void drawGhost(int);
 	void init(int);
 	void move(float,float);
+	int getDirectionG();
 private:
 	float boundingBox[4] = {4,4,-4,-4};
 };

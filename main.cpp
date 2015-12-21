@@ -528,9 +528,16 @@ void init(void)
 	
 	
 	chaser.init(0);
+	chaser.setPositionG(-2.0,0.0,6.0);
+
 	ambusher.init(1);
+	ambusher.setPositionG(2.0,0.0,6.0);
+
 	fickle.init(2);
+	fickle.setPositionG(0.0,2.0,6.0);
+
 	ignorance.init(3);
+	ignorance.setPositionG(0.0,-2.0,6.0);
 
 	bx1 = 2;
 	by1 = 5;
