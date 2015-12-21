@@ -22,7 +22,9 @@ endif
 all: pacman
 
 pacman: 
-	$(CC) $(CFLAGS) -o pacman$(EXEEXT) main.cpp pacman.cpp ghost.cpp food.cpp text.cpp walls.cpp $(LDFLAGS)
+	$(CC) $(CFLAGS) -o pacman$(EXEEXT) main.cpp pacman.cpp ghost.cpp food.cpp text.cpp $(LDFLAGS)
 
+test:
+	$(CC) $(CFLAGS) -o test$(EXEEXT) mainold.cpp pacman.cpp ghost.cpp food.cpp text.cpp $(LDFLAGS)
 clean:
 	$(RM) *$(EXEEXT)
