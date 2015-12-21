@@ -43,7 +43,7 @@ Ghost ambusher = Ghost(1);
 Ghost fickle = Ghost(2);
 Ghost ignorance = Ghost(3);
 Food food1;
-Text gameOverText,minusLife,newGameText,pressArrow,pauseT,newGameT,quitT,plusScore,unPauseT,scoreText; //,scoreNumber,countdown;
+Text gameOverText,minusLife,newGameText,pressArrow,pauseT,newGameT,quitT,plusScore,unPauseT,scoreText;
 
 bool newFood = true;
 bool paused = false;
@@ -58,6 +58,8 @@ int wiggleEyes = 1;
 int timer = 1;
 int wait_v; // change this value to current timer + n to wait
 bool cur_wait;
+
+float bx1,by1,bx2,by2;
 
 void endGame(void)
 {
@@ -76,13 +78,21 @@ void reset(void)
 {
   // pause game, await arrow press
   // generate new food position
-  P1.reset(newGame); // true for newGame, false otherwise
+  // P1.reset(newGame); // true for newGame, false otherwise
 	ghostHit = false;
 	foodHit = false;
 	resetGame = true;
 	newFood = true;
 	wait_v = timer + 250;
-
+/*
+	newFood = true;
+	paused = true;
+	newGame = true;
+	endG = false;
+	ghostHit = false;
+	foodHit = false;
+	plusLife = false;
+*/
 	chaser.init(0);
 	ambusher.init(1);
 	fickle.init(2);
@@ -126,6 +136,24 @@ void printText(void)
 	plusScore.setText(7);
 	scoreText.setText(8);
 	unPauseT.setText(9);
+}
+
+void boundaryBox(float x1, float y1, float x2, float y2){
+	glColor3f(1,1,1);
+	float points[4][3] = {
+		{x2,y1,0},
+		{x1,y1,0},
+		{x1,y2,0},
+		{x2,y2,0}
+	};
+
+	for(int i = 0; i < 4; i++)
+	{
+		glBegin(GL_LINES);
+		glVertex3fv(points[i]);
+		glVertex3fv(points[(i + 1) % 4]);
+		glEnd();
+	}
 }
 
 bool detectCollision(Ghost ghost,Pacman p)
@@ -203,51 +231,6 @@ bool detectCollision(Wall wall,Pacman p)
 }
 */
 
-void drawPolygon(int a, int b, int c, int d, float v[8][3]){
-	glBegin(GL_POLYGON);
-		glVertex3fv(v[a]);
-		glVertex3fv(v[b]);
-		glVertex3fv(v[c]);
-		glVertex3fv(v[d]);
-	glEnd();
-}
-
-void cube(float v[8][3])
-{
-	glColor3fv(cols[1]);
-	drawPolygon(0, 3, 2, 1, v);
-
-	glColor3fv(cols[2]);
-	drawPolygon(1, 0, 4, 5, v);
-
-	glColor3fv(cols[3]);
-	drawPolygon(5, 1, 2, 6, v);
-	
-	glColor3fv(cols[4]);
-	drawPolygon(2, 3, 7, 6, v);
-	
-	glColor3fv(cols[5]);
-	drawPolygon(6, 5, 4, 7, v);
-
-	glColor3fv(cols[0]);
-	drawPolygon(4, 0, 3, 7, v);
-}
-
-void drawBox(float* c, float w, float h, float d)
-{
-	float vertices[8][3] = { {c[0]-w/2, c[1]-h/2, c[2]+d/2},
-							 {c[0]-w/2, c[1]+h/2, c[2]+d/2},
-							 {c[0]+w/2, c[1]+h/2, c[2]+d/2},
-							 {c[0]+w/2, c[1]-h/2, c[2]+d/2}, 
-							 {c[0]-w/2, c[1]-h/2, c[2]-d/2}, 
-							 {c[0]-w/2, c[1]+h/2, c[2]-d/2}, 
-							 {c[0]+w/2, c[1]+h/2, c[2]-d/2},
-							 {c[0]+w/2, c[1]-h/2, c[2]-d/2} };
-
-	cube(vertices);
-}
-
-
 void keyboard(unsigned char key, int x, int y)
 {
 	switch (key)
@@ -258,11 +241,16 @@ void keyboard(unsigned char key, int x, int y)
 			break;
 
 		case 'p':
-		  paused = !paused;
+			if (!endG)
+			{
+		  	paused = !paused;
+		  }
 		  break;
 
 		case 'n':
 		  newGame = true;
+		  P1.reset(newGame);
+		  endG = false;
 		  break;
 			
 	}
@@ -306,20 +294,34 @@ void init(void)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	W1.createList();
+	
 	chaser.init(0);
 	ambusher.init(1);
 	fickle.init(2);
 	ignorance.init(3);
+
+	bx1 = 2;
+	by1 = 5;
+	bx2 = -5;
+	by2 = -5;
+
+	P1.setBounds(bx1,by1,bx2,by2);
+	food1.setBoundsF(bx1,by1,bx2,by2);
+	chaser.setBoundsG(bx1,by1,bx2,by2);
+	ambusher.setBoundsG(bx1,by1,bx2,by2);
+	fickle.setBoundsG(bx1,by1,bx2,by2);
+	ignorance.setBoundsG(bx1,by1,bx2,by2);
 }
 
 void idle(void)
 {
 	cur_wait = wait(); //constantly check if system is waiting
 
+
   if (!paused && cur_wait || foodHit && !paused) //paused and waiting
   {
-	  P1.move();
   	wait_v = 0;
+	  P1.move();
 	  chaser.move(P1.getPosX(),P1.getPosY());
 	  ambusher.move(P1.getPosX(),P1.getPosY());
 	  fickle.move(P1.getPosX(),P1.getPosY());
@@ -341,6 +343,7 @@ void idle(void)
 	  		loseLife();
 	  		newGame = false;
 	  		reset(); //new game triggered by life decrement
+	  		P1.reset(newGame);
 	  		i = 4; //break out of ghosts loop
 	  	}
 	  }
@@ -356,6 +359,12 @@ void idle(void)
       wait_v = timer + 200;
 	  }
   }
+
+	if (newGame)
+	{
+		P1.reset(newGame);
+		reset();
+	}
 
   if(!cur_wait && wait_v - timer <= 1)
   {
@@ -396,7 +405,20 @@ void display(void)
 	gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
 	glColor3f(1,1,1);
 
-	//drawBox(origin, 10, 10, 10);
+/*
+bool newFood = true;
+bool paused = false;
+bool newGame = false;
+bool resetGame = true;
+bool endG = false;
+bool ghostHit = false;
+bool foodHit = false;
+bool plusLife = true;
+*/
+
+	boundaryBox(bx1 + 1.5,by1 + 2.7,bx2 - 2.7,by2 - 2.7);
+
+  P1.drawPacman(wiggleEyes);
 
 	chaser.drawGhost(wiggleEyes);
 	ambusher.drawGhost(wiggleEyes);
@@ -408,12 +430,10 @@ void display(void)
     food1.drawFood(newFood,wiggleEyes % 2);
   }
  
-  P1.drawPacman(wiggleEyes);
 
   W1.drawWalls();
-  //W1.draw();
 
-  if(P1.getLives() < 0)
+  if(P1.getLives() < 0 && !newGame)
   {
  		gameOverText.drawText(0,0);
  	}
@@ -437,7 +457,7 @@ void display(void)
  	}
 
 	glColor3f(1,1,1);
- 	scoreText.drawText(-2,7.5);
+ 	scoreText.drawText(-3,7.8);
  	
  	Text scoreNumber;
 	int l;
@@ -446,7 +466,7 @@ void display(void)
  	l = intLength (P1.getScore(),0);
 	scoreNumber.setText(l,temp);
 	glColor3f(1,1,1);
- 	scoreNumber.drawText(0,7.5);
+ 	scoreNumber.drawText(-1,7.8);
 
  	glColor3f(1,1,1);
  	if(!cur_wait && !foodHit && !paused && !endG)
@@ -478,11 +498,11 @@ void display(void)
 
  	// instructions
  	glColor3f(1,1,1);
- 	pauseT.drawText(3,5);
+ 	pauseT.drawText(4,5);
  	glColor3f(1,1,1);
- 	newGameT.drawText(3,4.5);
+ 	newGameT.drawText(4,4.5);
  	glColor3f(1,1,1);
- 	quitT.drawText(3,4);
+ 	quitT.drawText(4,4);
 
  	// draw lives
  	for (int i = 0; i < P1.getLives(); i ++)
@@ -490,7 +510,7 @@ void display(void)
  		Pacman life;
  		glPushMatrix();
  		glRotatef(90.0,0.0,0.0,1.0);
- 		glTranslatef(5,6 - i * 0.2,-4);
+ 		glTranslatef(7.25,1.5 - i * 0.3,-4); //y,z,x
  		glScalef(0.5,0.5,1);
  		life.drawPacman(wiggleEyes);
  		glPopMatrix();
@@ -517,7 +537,9 @@ int main(int argc, char** argv)
 	glutSpecialFunc(special);
 
 	init();
-
+	
+	W1.createList();
+	
 	glutMainLoop();
 
 	return(0);
