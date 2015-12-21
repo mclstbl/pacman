@@ -19,7 +19,6 @@
 #include "ghost.h"
 #include "food.h"
 #include "text.h"
-#include "walls.h"
 
 using namespace std;
 
@@ -33,7 +32,7 @@ float camPos[] = {0, 0, 20};
 
 float angle = 0.0f;
 
-Walls W1;
+//Walls W1;
 Pacman P1;
 Ghost chaser = Ghost(0);
 Ghost ambusher = Ghost(1);
@@ -542,17 +541,9 @@ void init(void)
 	gluPerspective(45, 1, 1, 100);
 
 	glEnable(GL_DEPTH_TEST);
-<<<<<<< HEAD
-	//glEnable(GL_BLEND);
-  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	W1.createList();
-=======
-	glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
->>>>>>> 2dc3b56a533462219bbaba2a627396f59f169f6a
-	
+	//W1.createList();
+
 	chaser.init(0);
 	ambusher.init(1);
 	fickle.init(2);
@@ -731,30 +722,28 @@ void display(void)
 	fickle.drawGhost(wiggleEyes);
 	ignorance.drawGhost(wiggleEyes);
 
+	int offset = 9;
+
   if (P1.getLives() >= 0)
   {
     food1.drawFood(newFood,wiggleEyes % 2);
   }
-<<<<<<< HEAD
 
-  W1.drawWalls();
+//  W1.drawWalls();
 
-=======
- 
->>>>>>> 2dc3b56a533462219bbaba2a627396f59f169f6a
   if(P1.getLives() < 0 && !newGame)
   {
- 		gameOverText.drawText(-2,0);
+ 		gameOverText.drawText(offset -2,0);
  	}
  	glColor3f(0,1,0);
 	if(newGame)
  	{	
- 		newGameText.drawText(-3,1);
- 		pressArrow.drawText(-5,0);
+ 		newGameText.drawText(offset-3,1);
+ 		pressArrow.drawText(offset-5,0);
  	}
  	if(paused)
  	{
- 		unPauseT.drawText(-4,0);
+ 		unPauseT.drawText(offset-4,0);
  	}
 
 	glColor3f(1,1,1);
@@ -770,7 +759,7 @@ void display(void)
  	scoreNumber.drawText(-1,7.8);
 
  	glColor3f(1,1,1);
- 	if(!ghostChase && !cur_wait && !foodHit && !paused && !endG)
+ 	if(!cur_wait && !foodHit && !paused && !endG)
 	{
 		Text countdown;
 		//print 3..2..1
@@ -794,7 +783,7 @@ void display(void)
 		}
  		l = 1;
 		countdown.setText(l,temp);
- 		countdown.drawText(-2,0);
+ 		countdown.drawText(offset-2,0);
  	}
 
  	glColor3f(1,1,1);
@@ -809,7 +798,7 @@ void display(void)
  		l = 35;
 		Text notification;
 		notification.setText(l,temp);
- 		notification.drawText(-6,-2);
+ 		notification.drawText(offset-6,-2);
 	} 	
 
  	// instructions
@@ -879,12 +868,6 @@ int main(int argc, char** argv)
 	glutSpecialFunc(special);
 
 	init();
-	
-<<<<<<< HEAD
-	W1.createList();
-=======
-	
->>>>>>> 2dc3b56a533462219bbaba2a627396f59f169f6a
 
 	glutMainLoop();
 
