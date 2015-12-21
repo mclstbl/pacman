@@ -3,9 +3,7 @@ PACMAN GAME
 =========================
 
 TO COMPILE AND RUN (OSX/Linux)
-> cd into directory
-> make
-> ./pacman.x
+git clone repo; cd pacman; make; ./pacman.x
 
 CONTROLS
 P - pause game

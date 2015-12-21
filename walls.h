@@ -6,8 +6,8 @@ class Walls
 {
 public:
 
-	const int WALLS_X = 31;
-	const int WALLS_Y = 28;
+	int WALLS_X = 31;
+	int WALLS_Y = 28;
 
 	int Walls_array[31][28];
 
