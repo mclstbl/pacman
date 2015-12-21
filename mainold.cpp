@@ -36,7 +36,6 @@ float camPos[] = {0, 0, 20};
 
 float angle = 0.0f;
 
-Walls W1;
 Pacman P1;
 Ghost chaser = Ghost(0);
 Ghost ambusher = Ghost(1);
